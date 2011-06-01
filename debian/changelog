@@ -1,0 +1,60 @@
+lua-expat (1.1.0-3) unstable; urgency=low
+
+  * depend on lua5.1-policy-dev >= 22
+  * changed lua to Lua in the package description
+  * bumped standards-version to 3.8.2, no changes needed 
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Tue, 21 Jul 2009 12:48:09 +0200
+
+lua-expat (1.1.0-2) unstable; urgency=low
+
+  * Renamed cdbs deprecated variable
+  * Vcs- fields fixed
+  * Use shake to run compilation tests
+  * Added Homepage control field
+  * Removed dpatch build dependency
+  * Moved -dev package in section libdevel
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Tue, 18 Mar 2008 17:12:50 +0100
+
+lua-expat (1.1.0-1) unstable; urgency=low
+
+  * new upstream release, works out of the box with lua5.1
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Fri, 08 Jun 2007 18:42:44 +0200
+
+lua-expat (1.0.2-5) unstable; urgency=low
+
+  * Updated to policy 10 that fixes clean target (Closes: #424551)
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Wed, 16 May 2007 16:20:50 +0200
+
+lua-expat (1.0.2-4) unstable; urgency=low
+
+  * made control file binNMU safe
+  * Added a note about the documentation shipped within the -dev package
+    in the control file
+  * Added call to lua5.1-policy-apply --reverse in the clean:: hook
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Mon,  8 Jan 2007 17:32:37 +0100
+
+lua-expat (1.0.2-3) unstable; urgency=low
+
+  * Moved to policy version 7 
+  * The FTBFS bug #405990 is because of an incompatibility with the policy 
+    version 7 that is not in etch. This incompatibility has been fixed
+    (Closes: #405990)
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Mon,  8 Jan 2007 17:30:34 +0100
+
+lua-expat (1.0.2-2) unstable; urgency=low
+
+  * added XS-X-Vcs-svn field to control.
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Sun,  3 Sep 2006 10:26:13 +0200
+
+lua-expat (1.0.2-1) unstable; urgency=low
+
+  * Initial release. (Closes: #384350)
+
+ -- Enrico Tassi <gareuselesinge@debian.org>  Wed, 23 Aug 2006 20:12:16 +0200
