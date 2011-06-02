@@ -228,7 +228,18 @@ assert(x[1] == "e" and x[3] == "a/namespace?a")
 x = X[6]
 assert(x[1] == "en" and x[3] == "space" and table.getn(x) == 3)
 
+----------------------------
+print("testing doctype declarations")
 
+callbacks = {
+  StartDoctypeDecl = getargs
+ }
+p = lxp.new(callbacks)
+assert(p:parse([[<!DOCTYPE root PUBLIC "foo" "hello-world">]]))
+assert(p:parse[[<root/>]])
+p:close()
+assert(X[2] == "root" and X[3] == "hello-world" and X[4] == "foo" and
+       X[5] == false)
 
 -- Error reporting
 p = lxp.new{}
