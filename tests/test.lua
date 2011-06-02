@@ -291,6 +291,24 @@ assert(p:parse[[<to>]])
 local status, err = pcall(p.close, p)
 assert(not status and string.find(err, "error closing parser"))
 
+-- closing unfinished document
+print("testing parser:stop()");
+local stopped;
+p = lxp.new{
+	StartElement = function (parser, name, attr)
+		if name == "stop" then
+			parser:stop()
+			stopped = true
+		else
+			stopped = false
+		end
+	end
+}
+local ok, err = p:parse[[<root><parseme>Hello</parseme><stop>here</stop><notparsed/></root>]];
+assert(not ok)
+assert(err == "parsing aborted")
+assert(stopped == true, "parser not stopped")
+
 
 -- test for GC
 print("\ntesting garbage collection")
