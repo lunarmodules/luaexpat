@@ -511,6 +511,11 @@ static int lxp_setencoding (lua_State *L) {
   return 0;
 }
 
+static int lxp_stop (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  lua_pushboolean(L, XML_StopParser(xpu->parser, XML_FALSE) == XML_STATUS_OK);
+  return 1;
+}
 
 static const struct luaL_reg lxp_meths[] = {
   {"parse", lxp_parse},
@@ -521,6 +526,7 @@ static const struct luaL_reg lxp_meths[] = {
   {"getcallbacks", getcallbacks},
   {"getbase", getbase},
   {"setbase", setbase},
+  {"stop", lxp_stop},
   {NULL, NULL}
 };
 
