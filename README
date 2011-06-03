@@ -8,7 +8,7 @@ software and uses the same license as Lua 5.1.
 
 Status
 
-Current version is 1.1.1. It was developed for both Lua 5.0 and Lua 5.1,
+Current version is 1.2.0. It was developed for both Lua 5.0 and Lua 5.1,
 and has been tested on Linux, Windows (2000/XP) and MacOS X with Expat 2.0.0.
 
 Download
@@ -18,7 +18,7 @@ LuaBinaries a Windows binary version of LuaExpat can be found at the LuaForge pa
 
 History
 
-Version 1.1.1 [02/Jun/2011]
+Version 1.2.0 [02/Jun/2011]
 
         * support for the StartDoctypeDecl handler
         * add parser:stop() to abort parsing inside a callback

@@ -547,7 +547,7 @@ static void set_info (lua_State *L) {
 	lua_pushliteral (L, "LuaExpat is a SAX XML parser based on the Expat library");
 	lua_settable (L, -3);
 	lua_pushliteral (L, "_VERSION");
-	lua_pushliteral (L, "LuaExpat 1.1.0");
+	lua_pushliteral (L, "LuaExpat 1.2.0");
 	lua_settable (L, -3);
 }
 

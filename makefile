@@ -1,5 +1,5 @@
 T= lxp
-V= 1.1.0
+V= 1.2.0
 CONFIG= ./config
 
 include $(CONFIG)
