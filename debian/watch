@@ -1,6 +1,0 @@
-# test this watch file using:
-# uscan --watchfile debian/watch --upstream-version 0.0.1 --package luaexpat
-#
-version=3
-http://luaforge.net/frs/?group_id=13 \
-	/frs/download.php/\d+/luaexpat-([\d\.]*).tar.gz
