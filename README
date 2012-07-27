@@ -47,11 +47,11 @@ LuaExpat implements the SAX API.
 
 Credits
 
-Version 1.0 was designed by Roberto Ierusalimschy, AndrÈ Carregal and Tom·s Guisasola
+Version 1.0 was designed by Roberto Ierusalimschy, Andr√© Carregal and Tom√°s Guisasola
 as part of the Kepler Project which holds its copyright. The implementation was coded
 by Roberto Ierusalimschy, based on a previous design by Jay Carlson.
 
-LuaExpat development was sponsored by F·brica Digital and FINEP.
+LuaExpat development was sponsored by F√°brica Digital and FINEP.
 
 Contact
 
