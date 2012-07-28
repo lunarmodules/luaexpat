@@ -17,8 +17,7 @@ LIBNAME= $T.so.$V
 # (according to Lua 5.1 definition:
 # first version digit * 100 + second version digit
 # e.g. Lua 5.0.2 => 500, Lua 5.1 => 501, Lua 5.1.1 => 501)
-LUA_VERSION_NUM= 500
-COMPAT_DIR= ../compat/src
+LUA_VERSION_NUM= 502
 
 # Compilation parameters
 CWARNS = -Wall -pedantic \
