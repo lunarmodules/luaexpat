@@ -1,8 +1,5 @@
 CC		?= cc
-AR		?= ar rcu
-RANLIB		?= ranlib
 RM		?= rm -rf
-MKDIR		?= mkdir -p
 INSTALL		?= install
 INSTALL_PROGRAM	?= $(INSTALL)
 INSTALL_DATA	?= $(INSTALL) -m 644
@@ -25,11 +22,8 @@ OBJS		 = src/lxplib.o
 
 lib: src/$(LIBNAME)
 
-src/$(LIBNAME): $(OBJS)
+src/$(LIBNAME):
 	export MACOSX_DEPLOYMENT_TARGET="10.3";
-	$(CC) $(CF) $(LF) -o $@ $<
-
-$(OBJS):
 	$(CC) $(CF) $(LF) -o $@ src/$(T)lib.c
 
 install:
@@ -37,4 +31,4 @@ install:
 	$(INSTALL_PROGRAM) -D src/$T/lom.lua $(DESTDIR)$(LUA_LDIR)/$T/lom.lua
 
 clean:
-	rm -f src/$(LIBNAME) $(OBJS)
+	$(RM) src/$(LIBNAME) $(OBJS)
