@@ -524,11 +524,18 @@ static int lxp_stop (lua_State *L) {
 #define luaL_Reg luaL_reg
 #endif
 
+static int lxp_getcurrentbytecount (lua_State* L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  lua_pushinteger(L, XML_GetCurrentByteCount(xpu->parser));
+  return 1;
+}
+
 static const struct luaL_Reg lxp_meths[] = {
   {"parse", lxp_parse},
   {"close", lxp_close},
   {"__gc", parser_gc},
   {"pos", lxp_pos},
+  {"getcurrentbytecount", lxp_getcurrentbytecount},
   {"setencoding", lxp_setencoding},
   {"getcallbacks", getcallbacks},
   {"getbase", getbase},
