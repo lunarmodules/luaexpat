@@ -38,6 +38,7 @@ struct lxp_userdata {
   int tableref;  /* table with callbacks for this parser */
   enum XPState state;
   luaL_Buffer *b;  /* to concatenate sequences of cdata pieces */
+  int bufferCharData; /* whether to buffer cdata pieces */
 };
 
 typedef struct lxp_userdata lxp_userdata;
@@ -152,8 +153,13 @@ static void f_CharData (void *ud, const char *s, int len) {
   lxp_userdata *xpu = (lxp_userdata *)ud;
   if (xpu->state == XPSok) {
     if (getHandle(xpu, CharDataKey) == 0) return;  /* no handle */
-    xpu->state = XPSstring;
-    luaL_buffinit(xpu->L, xpu->b);
+    if(xpu->bufferCharData != 0) {
+      xpu->state = XPSstring;
+      luaL_buffinit(xpu->L, xpu->b);
+    } else {
+      lua_pushlstring(xpu->L, s, len);
+      docall(xpu, 1, 0);
+    }
   }
   if (xpu->state == XPSstring)
     luaL_addlstring(xpu->b, s, len);
@@ -374,8 +380,10 @@ static void checkcallbacks (lua_State *L) {
 
 static int lxp_make_parser (lua_State *L) {
   XML_Parser p;
+  int bufferCharData = (lua_type(L, 3) != LUA_TBOOLEAN) || (lua_toboolean(L, 3) != 0);
   char sep = *luaL_optstring(L, 2, "");
   lxp_userdata *xpu = createlxp(L);
+  xpu->bufferCharData = bufferCharData;
   p = xpu->parser = (sep == '\0') ? XML_ParserCreate(NULL) :
                                     XML_ParserCreateNS(NULL, sep);
   if (!p)
