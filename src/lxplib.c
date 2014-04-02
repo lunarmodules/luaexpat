@@ -326,6 +326,16 @@ static void f_StartDoctypeDecl (void *ud, const XML_Char *doctypeName,
   docall(xpu, 4, 0);
 }
 
+static void f_XmlDecl (void *ud, const XML_Char *version,
+                                 const XML_Char *encoding,
+                                 int standalone) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  if (getHandle(xpu, XmlDeclKey) == 0) return;  /* no handle */
+  lua_pushstring(xpu->L, version);
+  lua_pushstring(xpu->L, encoding);
+  lua_pushboolean(xpu->L, standalone);
+  docall(xpu, 3, 0);
+}
 /* }====================================================== */
 
 
@@ -346,7 +356,7 @@ static void checkcallbacks (lua_State *L) {
     "Default", "DefaultExpand", "StartElement", "EndElement",
     "ExternalEntityRef", "StartNamespaceDecl", "EndNamespaceDecl",
     "NotationDecl", "NotStandalone", "ProcessingInstruction",
-    "UnparsedEntityDecl", "StartDoctypeDecl", NULL};
+    "UnparsedEntityDecl", "StartDoctypeDecl", "XmlDecl", NULL};
   if (hasfield(L, "_nonstrict")) return;
   lua_pushnil(L);
   while (lua_next(L, 1)) {
@@ -401,6 +411,8 @@ static int lxp_make_parser (lua_State *L) {
     XML_SetUnparsedEntityDeclHandler(p, f_UnparsedEntityDecl);
   if (hasfield(L, StartDoctypeDeclKey))
     XML_SetStartDoctypeDeclHandler(p, f_StartDoctypeDecl);
+  if (hasfield(L, XmlDeclKey))
+    XML_SetXmlDeclHandler(p, f_XmlDecl);
   return 1;
 }
 
