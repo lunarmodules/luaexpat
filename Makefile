@@ -9,7 +9,7 @@ LUA_CDIR	?= /usr/lib/lua/$(LUA_V)
 T		= lxp
 LIBNAME		= $(T).so
 
-COMMON_CFLAGS	 = -g -pedantic -Wall -O2 -shared -fPIC -DPIC -ansi
+COMMON_CFLAGS	 = -g -pedantic -Wall -O2 -fPIC -DPIC -ansi
 LUA_INC		?= -I/usr/include/lua$(LUA_V)
 EXPAT_INC	?= -I/usr/include
 CF		 = $(LUA_INC) $(EXPAT_INC) $(COMMON_CFLAGS) $(CFLAGS)
@@ -24,7 +24,7 @@ lib: src/$(LIBNAME)
 
 src/$(LIBNAME):
 	export MACOSX_DEPLOYMENT_TARGET="10.3";
-	$(CC) $(CF) $(LF) -o $@ src/$(T)lib.c
+	$(CC) $(CF) -o $@ src/$(T)lib.c $(LF)
 
 install:
 	$(INSTALL_PROGRAM) -D src/$(LIBNAME) $(DESTDIR)$(LUA_CDIR)/$(LIBNAME)
