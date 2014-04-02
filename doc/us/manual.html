@@ -85,11 +85,11 @@ implements the <a href="lom.html">Lua Object Model</a>.</p>
 <h2><a name="building"></a>Building</h2>
 
 <p>
-LuaExpat could be built to Lua 5.0 or to Lua 5.1.
+LuaExpat could be built to Lua 5.1 or to Lua 5.2.
 In both cases,
 the language library and headers files for the desired version
 must be installed properly.
-LuaExpat also depends on Expat 2.0.0 which should also be installed.
+LuaExpat also depends on Expat 2.0.0+ which should also be installed.
 </p>
 <p>
 LuaExpat offers a Makefile and a separate configuration file,
@@ -131,11 +131,13 @@ assume no behaviour for any undeclared callbacks.</p>
 <h4>Constructor</h4>
 
 <dl class="reference">
-    <dt><strong>lxp.new(<em>callbacks [, separator]</em>)</strong></dt>
+    <dt><strong>lxp.new(<em>callbacks [, separator[, merge_character_data]]</em>)</strong></dt>
     <dd>The parser is created by a call to the function <strong>lxp.new</strong>,
     which returns the created parser or raises a Lua error. It
     receives the callbacks table and optionally the parser <a href="#separator">
-    separator character</a> used in the namespace expanded element names.</dd>
+    separator character</a> used in the namespace expanded element names.
+    If <em>merge_character_data</em> is false then LuaExpat will not combine multiple
+    CharacterData calls into one. For more info on this behaviour see CharacterData below.</dd>
 </dl>
 
 <h4>Methods</h4>
@@ -166,6 +168,12 @@ assume no behaviour for any undeclared callbacks.</p>
     <dt><strong>parser:pos()</strong></dt>
     <dd>Returns three results: the current parsing line, column, and
     absolute position.</dd>
+
+    <dt><strong>parser:getcurrentbytecount()</strong></dt>
+    <dd>Return the number of bytes of input corresponding to the current
+    event. This function can only be called inside a handler, in other
+    contexts it will return 0. Do not use inside a CharacterData handler
+    unless CharacterData merging has been disabled (see lxp.new).</dd>
 
     <dt><strong>parser:setbase(base)</strong></dt>
     <dd>Sets the <em>base</em> to be used for resolving relative URIs in
@@ -205,8 +213,8 @@ callbacks:<br />
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
 <em>NotationDecl</em>, <em>ProcessingInstruction</em>,
 <em>StartCDataSection</em>, <em>StartElement</em>,
-<em>StartNamespaceDecl</em>, <em>UnparsedEntityDecl</em>
-and <em>StartDoctypeDecl</em>.</p>
+<em>StartNamespaceDecl</em>, <em>UnparsedEntityDecl</em>,
+<em>XmlDecl</em> and <em>StartDoctypeDecl</em>.</p>
 
 <p>These indices can be references to functions with
 specific signatures, as seen below. The parser constructor also
@@ -226,7 +234,10 @@ for more than one parser for example.</p>
 
 <dl class="reference">
     <dt><strong>callbacks.CharacterData = function(parser, string)</strong></dt>
-    <dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.</dd>
+    <dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.
+    Note that LuaExpat automatically combines multiple CharacterData events
+    from Expat into a single call to this handler, unless <em>merge_character_data</em>
+    is set to false when calling lxp.new().</dd>
 
     <dt><strong>callbacks.Comment = function(parser, string)</strong></dt>
     <dd>Called when the <em>parser</em> recognizes an XML comment
@@ -300,6 +311,11 @@ for more than one parser for example.</p>
     <dd>Called when the <em>parser</em> detects the begining of an XML
     CDATA section.</dd>
     
+    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding)</strong></dt>
+    <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
+    optional, and valid only at the start of the document). The callback receives
+    the declared XML <em>version</em> and document <em>encoding</em>.</dd>
+    
     <dt><strong>callbacks.StartElement = function(parser, elementName, attributes)</strong></dt>
     <dd>Called when the <em>parser</em> detects the begining of an XML
     element with <em>elementName</em>.<br/>
@@ -371,7 +387,6 @@ the character '\0'.</p>
 <div id="about">
 	<p><a href="http://validator.w3.org/check?uri=referer">
     <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
-	<p><small>$Id: manual.html,v 1.27 2007/06/05 20:03:12 carregal Exp $</small></p>
 </div> <!-- id="about" -->
 
 </div> <!-- id="container" -->
