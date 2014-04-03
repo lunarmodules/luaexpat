@@ -20,9 +20,11 @@ History
 
 Version 1.3.0 [04/Apr/2014]
 
+        * Lua 5.2 support (thanks Tomás Guisasola Gorham)
         * support for the XmlDecl handler
         * add parser:getcurrentbytecount() (XML_GetCurrentByteCount)
         * ability to disable CharacterData merging
+        * Makefile improvements (thanks Vadim Misbakh-Soloviov)
 
 Version 1.2.0 [02/Jun/2011]
 
