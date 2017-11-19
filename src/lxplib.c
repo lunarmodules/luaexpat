@@ -17,6 +17,10 @@
 
 #include "lxplib.h"
 
+#if (LUA_VERSION_NUM == 501)
+#define lua_getuservalue(L, i) lua_getfenv(L, i)
+#define lua_setuservalue(L, i) lua_setfenv(L, i)
+#endif
 
 #if !defined(lua_pushliteral)
 #define lua_pushliteral(L, s)	\
@@ -35,7 +39,7 @@ enum XPState {
 struct lxp_userdata {
   lua_State *L;
   XML_Parser parser;  /* associated expat parser */
-  int tableref;  /* table with callbacks for this parser */
+  int errorref;  /* reference to error message if state is XPSerror */
   enum XPState state;
   luaL_Buffer *b;  /* to concatenate sequences of cdata pieces */
   int bufferCharData; /* whether to buffer cdata pieces */
@@ -58,7 +62,7 @@ static int reporterror (lxp_userdata *xpu) {
 
 static lxp_userdata *createlxp (lua_State *L) {
   lxp_userdata *xpu = (lxp_userdata *)lua_newuserdata(L, sizeof(lxp_userdata));
-  xpu->tableref = LUA_REFNIL;  /* in case of errors... */
+  xpu->errorref = LUA_REFNIL;
   xpu->parser = NULL;
   xpu->L = NULL;
   xpu->state = XPSpre;
@@ -69,8 +73,8 @@ static lxp_userdata *createlxp (lua_State *L) {
 
 
 static void lxpclose (lua_State *L, lxp_userdata *xpu) {
-  luaL_unref(L, LUA_REGISTRYINDEX, xpu->tableref);
-  xpu->tableref = LUA_REFNIL;
+  luaL_unref(L, LUA_REGISTRYINDEX, xpu->errorref);
+  xpu->errorref = LUA_REFNIL;
   if (xpu->parser)
     XML_ParserFree(xpu->parser);
   xpu->parser = NULL;
@@ -87,8 +91,7 @@ static void docall (lxp_userdata *xpu, int nargs, int nres) {
   assert(xpu->state == XPSok);
   if (lua_pcall(L, nargs + 1, nres, 0) != 0) {
     xpu->state = XPSerror;
-    luaL_unref(L, LUA_REGISTRYINDEX, xpu->tableref);
-    xpu->tableref = luaL_ref(L, LUA_REGISTRYINDEX);  /* error message */
+    xpu->errorref = luaL_ref(L, LUA_REGISTRYINDEX);  /* error message */
   }
 }
 
@@ -233,8 +236,8 @@ static int f_ExternaEntity (XML_Parser p, const char *context,
   child->parser = XML_ExternalEntityParserCreate(p, context, NULL);
   if (!child->parser)
     luaL_error(L, "XML_ParserCreate failed");
-  lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->tableref); /*lua_getref(L, xpu->tableref); */ /* child uses the same table of its father */
-  child->tableref = luaL_ref(L, LUA_REGISTRYINDEX);
+  lua_getuservalue(L, 1);
+  lua_setuservalue(L, -2); /* child uses the same table of its father */
   lua_pushstring(L, base);
   lua_pushstring(L, systemId);
   lua_pushstring(L, publicId);
@@ -391,7 +394,7 @@ static int lxp_make_parser (lua_State *L) {
   luaL_checktype(L, 1, LUA_TTABLE);
   checkcallbacks(L);
   lua_pushvalue(L, 1);
-  xpu->tableref = luaL_ref(L, LUA_REGISTRYINDEX);
+  lua_setuservalue(L, -2);
   XML_SetUserData(p, xpu);
   if (hasfield(L, StartCdataKey) || hasfield(L, EndCdataKey))
     XML_SetCdataSectionHandler(p, f_StartCdata, f_EndCdataKey);
@@ -457,8 +460,8 @@ static int getbase (lua_State *L) {
 
 
 static int getcallbacks (lua_State *L) {
-  lxp_userdata *xpu = checkparser(L, 1);
-  lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->tableref);
+  checkparser(L, 1);
+  lua_getuservalue(L, 1);
   return 1;
 }
 
@@ -471,11 +474,11 @@ static int parse_aux (lua_State *L, lxp_userdata *xpu, const char *s,
   xpu->state = XPSok;
   xpu->b = &b;
   lua_settop(L, 2);
-  lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->tableref); /*lua_getref(L, xpu->tableref);*/  /* to be used by handlers */
+  getcallbacks(L);
   status = XML_Parse(xpu->parser, s, (int)len, s == NULL);
   if (xpu->state == XPSstring) dischargestring(xpu);
   if (xpu->state == XPSerror) {  /* callback error? */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->tableref);  /* get original msg. */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->errorref);  /* get original msg. */
     lua_error(L);
   }
   if (s == NULL) xpu->state = XPSfinished;
