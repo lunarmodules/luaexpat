@@ -587,6 +587,9 @@ static void set_info (lua_State *L) {
 	lua_pushliteral (L, "_VERSION");
 	lua_pushliteral (L, "LuaExpat 1.3.0");
 	lua_settable (L, -3);
+	lua_pushliteral (L, "_EXPAT_VERSION");
+	lua_pushstring (L, XML_ExpatVersion());
+	lua_settable (L, -3);
 }
 
 int luaopen_lxp (lua_State *L) {
