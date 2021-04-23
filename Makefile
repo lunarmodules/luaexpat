@@ -9,7 +9,7 @@ LUA_CDIR	?= /usr/lib/lua/$(LUA_V)
 T		= lxp
 LIBNAME		= $(T).so
 
-COMMON_CFLAGS	 = -g -pedantic -Wall -O2 -fPIC -DPIC -ansi
+COMMON_CFLAGS	 = -g -pedantic -Wall -O2 -fPIC -DPIC
 LUA_INC		?= -I/usr/include/lua$(LUA_V)
 EXPAT_INC	?= -I/usr/include
 CF		 = $(LUA_INC) $(EXPAT_INC) $(COMMON_CFLAGS) $(CFLAGS)
