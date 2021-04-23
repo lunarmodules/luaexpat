@@ -370,5 +370,4 @@ end
 collectgarbage(); collectgarbage()
 assert(math.abs(gcinfo() - x) <= 2)
 
-print"OK"
-
+print("OK", _VERSION)
