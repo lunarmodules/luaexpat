@@ -602,7 +602,7 @@ int luaopen_lxp (lua_State *L) {
 	luaL_setfuncs (L, lxp_meths, 0);
 	lua_pop (L, 1); /* remove metatable */
 
-	lua_newtable (L);
+	lua_newtable (L); /* push library table */
 	luaL_setfuncs (L, lxp_funcs, 0);
 	set_info (L);
 	return 1;
