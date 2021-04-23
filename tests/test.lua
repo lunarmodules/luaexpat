@@ -357,6 +357,18 @@ end
 collectgarbage(); collectgarbage()
 assert(math.abs(gcinfo() - x) <= 2)
 
+-- test for GC (circular references)
+print("testing garbage collection (circular reference)")
+collectgarbage(); collectgarbage()
+local x = gcinfo()
+for i=1,100000 do
+  -- due to a small bug in Lua...
+  if (math.mod or math.fmod)(i, 100) == 0 then collectgarbage() end
+  local p;
+  p = lxp.new({ StartElement = function () print(p) end });
+end
+collectgarbage(); collectgarbage()
+assert(math.abs(gcinfo() - x) <= 2)
 
 print"OK"
 
