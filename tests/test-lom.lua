@@ -96,14 +96,14 @@ local tests = {
 	},
 }
 
-function table.equal (t1, t2)
+local function table_equal (t1, t2)
 	for nome, val in pairs (t1) do
 		local tv = type(val)
 		if tv == "table" then
 			if type(t2[nome]) ~= "table" then
 				return false, "Different types at entry `"..nome.."': t1."..nome.." is "..tv.." while t2."..nome.." is "..type(t2[nome]).." ["..tostring(t2[nome]).."]"
 			else
-				local ok, msg = table.equal (val, t2[nome])
+				local ok, msg = table_equal (val, t2[nome])
 				if not ok then
 					return false, "["..nome.."]\t"..tostring(val).." ~= "..tostring(t2[nome]).."; "..msg
 				end
@@ -125,10 +125,10 @@ for i, s in ipairs(tests) do
 	local doc = header..s[1]
 
 	local o1 = assert (lom.parse (doc))
-	assert(table.equal (o1, s[2]))
+	assert(table_equal (o1, s[2]))
 
 	local o2 = assert (lom.parse (string.gmatch(doc, ".-%>")))
-	assert(table.equal (o2, s[2]))
+	assert(table_equal (o2, s[2]))
 end
 
 local o = assert (lom.parse ([[
