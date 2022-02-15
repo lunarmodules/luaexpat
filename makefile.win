@@ -19,6 +19,7 @@ install: src\lxp.dll
 	copy src\lxp.dll $(LUA_LIBDIR)
 	IF NOT EXIST $(LUA_DIR)\lxp mkdir $(LUA_DIR)\lxp
 	copy src\lxp\lom.lua $(LUA_DIR)\lxp
+	copy src\lxp\totable.lua $(LUA_DIR)\lxp
 
 clean:
 	del src\lxp.dll
