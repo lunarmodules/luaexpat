@@ -1,0 +1,42 @@
+name: "Unix build"
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      EXPAT_VERSION: 2.4.4
+
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion: ["5.1", "5.2", "5.3", "5.4", "luajit-2.1.0-beta3", "luajit-openresty"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: leafo/gh-actions-lua@v8
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+
+    - uses: leafo/gh-actions-luarocks@v4
+
+    - name: build expat
+      run: |
+        git clone -b R_$(echo $EXPAT_VERSION | sed "s/\./_/g") --single-branch https://github.com/libexpat/libexpat.git
+        cd libexpat/expat
+        ./buildconf.sh
+        ./configure
+        sudo make install
+
+    - name: build luaexpat
+      run: |
+        luarocks make
+
+    - name: test suite
+      run: |
+        lua tests/test.lua
+        lua tests/test-lom.lua
+        lua tests/test-table.lua
