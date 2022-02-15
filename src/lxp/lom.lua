@@ -9,28 +9,28 @@ local assert, pairs, type = assert, pairs, type
 
 -- auxiliary functions -------------------------------------------------------
 local function starttag (p, tag, attr)
-  local stack = p:getcallbacks().stack
-  local newelement = {tag = tag, attr = attr}
-  tinsert(stack, newelement)
+	local stack = p:getcallbacks().stack
+	local newelement = {tag = tag, attr = attr}
+	tinsert(stack, newelement)
 end
 
 local function endtag (p, tag)
-  local stack = p:getcallbacks().stack
-  local element = tremove(stack)
-  assert(element.tag == tag)
-  local level = #stack
-  tinsert(stack[level], element)
+	local stack = p:getcallbacks().stack
+	local element = tremove(stack)
+	assert(element.tag == tag)
+	local level = #stack
+	tinsert(stack[level], element)
 end
 
 local function text (p, txt)
-  local stack = p:getcallbacks().stack
-  local element = stack[#stack]
-  local n = #element
-  if type(element[n]) == "string" then
-    element[n] = element[n] .. txt
-  else
-    tinsert(element, txt)
-  end
+	local stack = p:getcallbacks().stack
+	local element = stack[#stack]
+	local n = #element
+	if type(element[n]) == "string" then
+		element[n] = element[n] .. txt
+	else
+		tinsert(element, txt)
+	end
 end
 
 -- main function -------------------------------------------------------------
