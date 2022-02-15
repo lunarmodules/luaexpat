@@ -2,12 +2,10 @@
 -- See Copyright Notice in license.html
 -- $Id: test.lua,v 1.6 2006/06/08 20:34:52 tomas Exp $
 
-if string.find(_VERSION, " 5.0") then
-	lxp = assert(loadlib("./lxp.so", "luaopen_lxp"))()
-else
-	lxp = require"lxp"
-	gcinfo = function () return collectgarbage"count" end
-end
+
+local lxp = require"lxp"
+local gcinfo = function () return collectgarbage"count" end
+
 print (lxp._VERSION)
 assert(lxp.new, "Cannot find function lxp.new ("..tostring(lxp.new)..")")
 
@@ -18,7 +16,7 @@ assert(p:parse[[<tag cap="5">hi</tag>]])
 p:close()
 
 
-preamble = [[
+local preamble = [[
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!DOCTYPE greeting [
@@ -41,49 +39,27 @@ preamble = [[
 ]>
 ]]
 
-X = {}
-if string.find(_VERSION, " 5.0") then
-	function getargs (...) X = arg end
-	function xgetargs (c)
-	  return function (...)
-	    table.insert(arg, 1, c)
-	    table.insert(X, arg)
-	  end
+local X = {}
+
+local function getargs (...)
+	X = { ... }
+	X.n = select('#', ...)
+end
+
+local function xgetargs (c)
+	return function (...)
+		local arg = { ... }
+		arg.n = select('#', ...) + 1
+		table.insert(arg, 1, c)
+		table.insert(X, arg)
 	end
-else
-	(loadstring or load)[[
-	function getargs (...)
-		X = { ... }
-		X.n = select('#', ...)
-	end
-	function xgetargs (c)
-	  return function (...)
-	    local arg = { ... }
-	    arg.n = select('#', ...) + 1
-	    table.insert(arg, 1, c)
-	    table.insert(X, arg)
-	  end
-	end
-	table.getn = function (t)
-		if t.n then
-			return t.n
-		else
-			local n = 0
-			for i in pairs(t) do
-				if type(i) == "number" then
-					n = math.max(n, i)
-				end
-			end
-			return n
-		end
-	end]]()
 end
 
 
 
 -------------------------------
 print("testing start/end tags")
-callbacks = {
+local callbacks = {
   StartElement = getargs,
   EndElement = getargs,
 }
@@ -94,9 +70,9 @@ assert(p:parse([[
 <to priority="10" xu = "hi">
 ]]))
 assert(X.n == 3 and X[1] == p and X[2] == "to")
-x = X[3]
+local x = X[3]
 assert(x.priority=="10" and x.xu=="hi" and x.method=="POST")
-assert(x[1] == "priority" and x[2] == "xu" and table.getn(x) == 2, "x[1] == "..tostring(x[1])..", x[2] == "..tostring(x[2])..", #x == "..tostring(table.getn(x)))
+assert(x[1] == "priority" and x[2] == "xu" and #x == 2, "x[1] == "..tostring(x[1])..", x[2] == "..tostring(x[2])..", #x == "..tostring(#x))
 assert(p:parse("</to>"))
 assert(p:parse())
 p:close()
@@ -122,14 +98,14 @@ p:close()
 callbacks = {
   CharacterData = xgetargs"c",
   StartCdataSection = xgetargs"s",
-  EndCdataSection = xgetargs"e", 
+  EndCdataSection = xgetargs"e",
 }
 X = {}
 p = lxp.new(callbacks)
 assert(p:parse(preamble))
 assert(p:parse"<to>")
 assert(p:parse"<![CDATA[hi]]>")
-assert(table.getn(X) == 3)
+assert(#X == 3)
 assert(X[1][1] == "s" and X[1][2] == p, "X[1][1] == "..tostring(X[1][1])..", X[1][2] == "..tostring(X[1][2])..", p == "..tostring(p))
 assert(X[2][1] == "c" and X[2][2] == p and X[2][3] == "hi")
 assert(X[3][1] == "e" and X[3][2] == p)
@@ -173,7 +149,7 @@ assert(X[3][3] == "\nsome more text")
 
 ----------------------------
 print("testing ExternalEntity")
-entities = {
+local entities = {
 ["entity1.xml"] = "<hi/>"
 }
 
@@ -201,7 +177,7 @@ assert(X[4][1] == "e" and X[4][3] == "to")
 
 ----------------------------
 print("testing default handles")
-text = [[<to> hi &xuxu; </to>]]
+local text = [[<to> hi &xuxu; </to>]]
 local t = ""
 
 callbacks = { Default = function (p, s) t = t .. s end }
@@ -255,13 +231,15 @@ assert(p:parse[[
 ]])
 p:close()
 x = X[1]
-assert(x[1] == "sn" and x[3] == "space" and x[4] == "a/namespace" and table.getn(x) == 4, "x[1] == "..tostring(x[1])..", x[3] == "..tostring(x[3])..", x[4] == "..tostring(x[4])..", #x == "..tostring(table.getn(x)))
+assert(x[1] == "sn" and x[3] == "space" and x[4] == "a/namespace" and #x == 4,
+      "x[1] == "..tostring(x[1])..", x[3] == "..tostring(x[3])..
+	  ", x[4] == "..tostring(x[4])..", #x == "..tostring(#x))
 x = X[3]
 assert(x[1] == "s" and x[3] == "a/namespace?a")
 x = X[4]
 assert(x[1] == "e" and x[3] == "a/namespace?a")
 x = X[6]
-assert(x[1] == "en" and x[3] == "space" and table.getn(x) == 3)
+assert(x[1] == "en" and x[3] == "space" and #x == 3)
 
 ----------------------------
 print("testing doctype declarations")
@@ -278,7 +256,7 @@ assert(X[2] == "root" and X[3] == "hello-world" and X[4] == "foo" and
 
 -- Error reporting
 p = lxp.new{}
-data = [[
+local data = [[
 <tag>
   <other< </other>
 </tag>
@@ -289,7 +267,7 @@ assert(string.sub(data, byte, byte) == "<")
 
 p = lxp.new{}
 p:parse("<to>")
-local status, msg, line, col, byte = p:parse()
+local status, _, line, col, byte = p:parse()
 assert(status == nil and line == 1 and col == 5 and byte == 5)
 
 
@@ -355,7 +333,8 @@ for i=1,100000 do
   lxp.new({})
 end
 collectgarbage(); collectgarbage()
-assert(math.abs(gcinfo() - x) <= 2)
+print(math.abs(gcinfo() - x))
+assert(math.abs(gcinfo() - x) <= (2 + (jit and 1 or 0))) -- luajit gets another 1kb
 
 -- test for GC (circular references)
 print("testing garbage collection (circular reference)")
@@ -368,6 +347,6 @@ for i=1,100000 do
   p = lxp.new({ StartElement = function () print(p) end });
 end
 collectgarbage(); collectgarbage()
-assert(math.abs(gcinfo() - x) <= 2)
+assert(math.abs(gcinfo() - x) <= (2 + (jit and 1 or 0))) -- luajit gets another 1kb
 
 print("OK", _VERSION)

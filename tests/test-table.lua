@@ -242,14 +242,14 @@ local tests = {
 }
 
 
-function table.equal (t1, t2)
+local function table_equal (t1, t2)
 	for nome, val in pairs (t1) do
 		local tv = type(val)
 		if tv == "table" then
 			if type(t2[nome]) ~= "table" then
 				return false, "Different types at entry `"..nome.."': t1."..nome.." is "..tv.." while t2."..nome.." is "..type(t2[nome]).." ["..tostring(t2[nome]).."]"
 			else
-				local ok, msg = table.equal (val, t2[nome])
+				local ok, msg = table_equal (val, t2[nome])
 				if not ok then
 					return false, "["..nome.."]\t"..tostring(val).." ~= "..tostring(t2[nome]).."; "..msg
 				end
@@ -266,13 +266,13 @@ end
 
 for i, s in ipairs(tests) do
 	local ds = assert (totable.parse ([[<?xml version="1.0" encoding="ISO-8859-1"?>]]..s[1]))
-	assert(table.equal (ds, s[2]))
+	assert(table_equal (ds, s[2]))
 end
 
 local t = totable.parse ([[<?xml version="1.0" encoding="ISO-8859-1"?>]]..tests[3][1])
 totable.clean (t)
-assert (table.equal (t, tests[3].clean))
+assert (table_equal (t, tests[3].clean))
 totable.torecord (t)
-assert (table.equal (t, tests[3].torecord))
+assert (table_equal (t, tests[3].torecord))
 
 print"OK"
