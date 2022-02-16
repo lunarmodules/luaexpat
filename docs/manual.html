@@ -3,13 +3,13 @@
 <html>
 <head>
 	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
-    <link rel="stylesheet" href="../doc.css" type="text/css"/>
+    <link rel="stylesheet" href="./doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
 
 <div id="container">
-	
+
 <div id="product">
 	<div id="product_logo"><a href="http://www.keplerproject.org">
         <img alt="LuaExpat logo" src="luaexpat.png"/>
@@ -65,7 +65,7 @@ SAX is the <em>Simple API for XML</em> and allows programs to:
 <ul>
     <li>process a XML document incrementally, thus being able to handle
     huge documents without memory penalties;</li>
-    
+
     <li>register handler functions which are called by the parser during
     the processing of the document, handling the document elements or
     text.</li>
@@ -147,13 +147,13 @@ assume no behaviour for any undeclared callbacks.</p>
     <dd>Closes the parser, freeing all memory used by it. A call to
     parser:close() without a previous call to parser:parse() could
     result in an error.</dd>
-   
+
     <dt><strong>parser:getbase()</strong></dt>
     <dd>Returns the base for resolving relative URIs.</dd>
-    
+
     <dt><strong>parser:getcallbacks()</strong></dt>
     <dd>Returns the callbacks table.</dd>
-    
+
     <dt><strong>parser:parse(s)</strong></dt>
     <dd>Parse some more of the document. The string <em>s</em> contains
     part (or perhaps all) of the document. When called without
@@ -242,7 +242,7 @@ for more than one parser for example.</p>
     <dt><strong>callbacks.Comment = function(parser, string)</strong></dt>
     <dd>Called when the <em>parser</em> recognizes an XML comment
     <em>string</em>.</dd>
-    
+
     <dt><strong>callbacks.Default = function(parser, string)</strong></dt>
     <dd>Called when the <em>parser</em> has a <em>string</em>
     corresponding to any characters in the document which wouldn't
@@ -310,12 +310,12 @@ for more than one parser for example.</p>
     <dt><strong>callbacks.StartCdataSection = function(parser)</strong></dt>
     <dd>Called when the <em>parser</em> detects the begining of an XML
     CDATA section.</dd>
-    
+
     <dt><strong>callbacks.XmlDecl = function(parser, version, encoding)</strong></dt>
     <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
     optional, and valid only at the start of the document). The callback receives
     the declared XML <em>version</em> and document <em>encoding</em>.</dd>
-    
+
     <dt><strong>callbacks.StartElement = function(parser, elementName, attributes)</strong></dt>
     <dd>Called when the <em>parser</em> detects the begining of an XML
     element with <em>elementName</em>.<br/>
@@ -332,7 +332,7 @@ for more than one parser for example.</p>
 <pre class="example">
 &lt;book author="Ierusalimschy, Roberto" title="Programming in Lua"&gt;
 </pre>
-    would be represented as<br/> 
+    would be represented as<br/>
 <pre class="example">
 {[1] = "Ierusalimschy, Roberto",
  [2] = "Programming in Lua",
@@ -387,4 +387,4 @@ the character '\0'.</p>
 </div> <!-- id="container" -->
 
 </body>
-</html> 
+</html>

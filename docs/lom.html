@@ -3,13 +3,13 @@
 <html>
 <head>
 	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
-    <link rel="stylesheet" href="../doc.css" type="text/css"/>
+    <link rel="stylesheet" href="./doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
 
 <div id="container">
-	
+
 <div id="product">
 	<div id="product_logo"><a href="http://www.keplerproject.org">
         <img alt="LuaExpat logo" src="luaexpat.png"/>
@@ -65,7 +65,7 @@ complete, but simple.</p>
 gets an XML documenta (a string) and transforms it to a Lua table.
 The only function exported is <strong><code>lxp.lom.parse</code></strong>.</p>
 
- 
+
 <h2><a name="characteristics"></a>Characteristics</h2>
 
 <p>The model represents each XML element as a Lua table. A LOM
@@ -78,7 +78,7 @@ table has three special characteristics:</p>
     <li>an optional field called <strong><code>attr</code></strong> that stores
     the element's attributes (see <a href="#attributes">attribute's
     section</a>); and</li>
-    
+
     <li>the element's children are stored at the <em>array-part</em> of
     the table. A child could be an ordinary string or another XML
     element that will be represented by a Lua table following these
@@ -158,7 +158,7 @@ tab = {
 }
 </pre>
 
-<p>Note that even the <em>new-line</em> and <em>tab</em> characters are stored 
+<p>Note that even the <em>new-line</em> and <em>tab</em> characters are stored
 on the table.</p>
 
 </div> <!-- id="content" -->
@@ -168,4 +168,4 @@ on the table.</p>
 </div> <!-- id="container" -->
 
 </body>
-</html> 
+</html>
