@@ -366,10 +366,11 @@ for more than one parser for example.</p>
     The <em>base</em> parameter would be whatever has been set with
     <code>parser:setbase</code>. If not set, it would be nil.</dd>
 
-    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding)</strong></dt>
+    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding, standalone)</strong></dt>
     <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
     optional, and valid only at the start of the document). The callback receives
-    the declared XML <em>version</em> and document <em>encoding</em>.</dd>
+    the declared XML <em>version</em> and document <em>encoding</em> as strings, and
+    <em>standalone</em> as a boolean.</dd>
 </dl>
 
 <h4><a name="separator"></a>The separator character</h4>
