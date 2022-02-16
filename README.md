@@ -1,5 +1,5 @@
-LuaExpat <https://matthewwild.co.uk/projects/luaexpat/>
--------------------------------------------------
+LuaExpat
+--------
 
 Overview
 
@@ -39,15 +39,15 @@ Version 1.2.0 [02/Jun/2011]
 Version 1.1.0 [05/Jun/2006]
 
         * adapted to work on both Lua 5.0 and Lua 5.1
-        * updated to Expat 2.0.0 
+        * updated to Expat 2.0.0
 
 Version 1.0.2 [23/Mar/2006]
 
-        * minor bugfix, lom correct module name is lxp.lom 
+        * minor bugfix, lom correct module name is lxp.lom
 
 Version 1.0.1 [06/Jun/2005]
 
-        * minor changes for compatibility with Expat version 1.95.8 
+        * minor changes for compatibility with Expat version 1.95.8
 
 Version 1.0 [2/Dec/2004]
 Version 1.0 Beta [4/Apr/2004]
