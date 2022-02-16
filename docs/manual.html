@@ -341,9 +341,9 @@ for more than one parser for example.</p>
  title = "Programming in Lua"}
 </pre></dd>
 
-    <dt><strong>callbacks.StartNamespaceDecl = function(parser, namespaceName)</strong></dt>
+    <dt><strong>callbacks.StartNamespaceDecl = function(parser, namespaceName, namespaceUri)</strong></dt>
     <dd>Called when the <em>parser</em> detects an XML namespace
-    declaration with <em>namespaceName</em>. Namespace declarations
+    declaration. The <em>namespaceName</em> can be nil. Namespace declarations
     occur inside start tags, but the StartNamespaceDecl handler is
     called before the StartElement handler for each namespace declared
     in that start tag.</dd>
