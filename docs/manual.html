@@ -311,10 +311,14 @@ for more than one parser for example.</p>
     <dd>Called when the <em>parser</em> detects the begining of an XML
     CDATA section.</dd>
 
-    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding)</strong></dt>
-    <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
-    optional, and valid only at the start of the document). The callback receives
-    the declared XML <em>version</em> and document <em>encoding</em>.</dd>
+    <dt><strong>callbacks.StartDoctypeDecl = function(parser, name, sysid, pubid, has_internal_subset)</strong></dt>
+    <dd>Called when the <em>parser</em> detects the beginning of an XML
+    DTD (DOCTYPE) section. These precede the XML root element and take
+    the form:
+<pre class="example">
+&lt;!DOCTYPE root_elem PUBLIC "example"&gt;
+</pre>
+    </dd>
 
     <dt><strong>callbacks.StartElement = function(parser, elementName, attributes)</strong></dt>
     <dd>Called when the <em>parser</em> detects the begining of an XML
@@ -362,14 +366,10 @@ for more than one parser for example.</p>
     The <em>base</em> parameter would be whatever has been set with
     <code>parser:setbase</code>. If not set, it would be nil.</dd>
 
-    <dt><strong>callbacks.StartDoctypeDecl = function(parser, name, sysid, pubid, has_internal_subset)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the beginning of an XML
-    DTD (DOCTYPE) section. These precede the XML root element and take
-    the form:
-<pre class="example">
-&lt;!DOCTYPE root_elem PUBLIC "example"&gt;
-</pre>
-    </dd>
+    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding)</strong></dt>
+    <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
+    optional, and valid only at the start of the document). The callback receives
+    the declared XML <em>version</em> and document <em>encoding</em>.</dd>
 </dl>
 
 <h4><a name="separator"></a>The separator character</h4>
