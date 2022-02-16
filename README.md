@@ -1,6 +1,9 @@
 LuaExpat
 --------
 
+[![Unix build](https://img.shields.io/github/workflow/status/lunarmodules/luaexpat/Unix%20build?label=Unix%20build&logo=linux)](https://github.com/lunarmodules/luaexpat/actions/workflows/unix_build.yml)
+[![Luacheck](https://github.com/lunarmodules/luaexpat/workflows/Luacheck/badge.svg)](https://github.com/lunarmodules/luaexpat/actions/workflows/luacheck.yml)
+
 Overview
 
 LuaExpat is a SAX XML parser based on the Expat library. LuaExpat is free
