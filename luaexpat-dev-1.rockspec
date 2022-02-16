@@ -45,6 +45,7 @@ build = {
 		},
 		["lxp.lom"] = "src/lxp/lom.lua",
 		["lxp.totable"] = "src/lxp/totable.lua",
+		["lxp.threat"] = "src/lxp/threat.lua",
 	},
 	copy_directories = { "docs", "spec" }
 }

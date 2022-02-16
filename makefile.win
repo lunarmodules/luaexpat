@@ -12,7 +12,7 @@ EXPAT_LIB=C:\Expat-2.0.0\Libs\libexpat.lib
 	cl /c /Fo$@ /O2 /I$(LUA_INC) /I$(EXPAT_INCLUDE) /D_CRT_SECURE_NO_DEPRECATE $<
 
 src\lxp.dll: $(OBJS)
-	link /dll /def:src\lxp.def /out:$@ $(OBJS) $(EXPAT_LIB) $(LUA_LIB) 
+	link /dll /def:src\lxp.def /out:$@ $(OBJS) $(EXPAT_LIB) $(LUA_LIB)
 
 install: src\lxp.dll
 	IF NOT EXIST $(LUA_LIBDIR) mkdir $(LUA_LIBDIR)
@@ -20,6 +20,7 @@ install: src\lxp.dll
 	IF NOT EXIST $(LUA_DIR)\lxp mkdir $(LUA_DIR)\lxp
 	copy src\lxp\lom.lua $(LUA_DIR)\lxp
 	copy src\lxp\totable.lua $(LUA_DIR)\lxp
+	copy src\lxp\threat.lua $(LUA_DIR)\lxp
 
 clean:
 	del src\lxp.dll

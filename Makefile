@@ -30,6 +30,7 @@ install:
 	$(INSTALL_PROGRAM) -D src/$(LIBNAME) $(DESTDIR)$(LUA_CDIR)/$(LIBNAME)
 	$(INSTALL_PROGRAM) -D src/$T/lom.lua $(DESTDIR)$(LUA_LDIR)/$T/lom.lua
 	$(INSTALL_PROGRAM) -D src/$T/totable.lua $(DESTDIR)$(LUA_LDIR)/$T/totable.lua
+	$(INSTALL_PROGRAM) -D src/$T/threat.lua $(DESTDIR)$(LUA_LDIR)/$T/threat.lua
 
 clean:
 	$(RM) src/$(LIBNAME) $(OBJS)
