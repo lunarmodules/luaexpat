@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
-    <link rel="stylesheet" href="./doc.css" type="text/css"/>
+	<link rel="stylesheet" href="./doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
@@ -12,7 +12,7 @@
 
 <div id="product">
 	<div id="product_logo"><a href="http://www.keplerproject.org">
-        <img alt="LuaExpat logo" src="luaexpat.png"/>
+		<img alt="LuaExpat logo" src="luaexpat.png"/>
 	</a></div>
 	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
 	<div id="product_description">XML Expat parsing for the Lua programming language</div>
@@ -37,6 +37,7 @@
 		<li><a href="manual.html">Manual</a>
 			<ul>
 				<li><a href="manual.html#introduction">Introduction</a></li>
+				<li><a href="manual.html#building">Building</a></li>
 				<li><a href="manual.html#installation">Installation</a></li>
 				<li><a href="manual.html#parser">Parser Objects</a></li>
 			</ul>
@@ -72,17 +73,17 @@ The only function exported is <strong><code>lxp.lom.parse</code></strong>.</p>
 table has three special characteristics:</p>
 
 <ul>
-    <li>a special field called <strong><code>tag</code></strong> that holds the
-    element's name;</li>
+	<li>a special field called <strong><code>tag</code></strong> that holds the
+	element's name;</li>
 
-    <li>an optional field called <strong><code>attr</code></strong> that stores
-    the element's attributes (see <a href="#attributes">attribute's
-    section</a>); and</li>
+	<li>an optional field called <strong><code>attr</code></strong> that stores
+	the element's attributes (see <a href="#attributes">attribute's
+	section</a>); and</li>
 
-    <li>the element's children are stored at the <em>array-part</em> of
-    the table. A child could be an ordinary string or another XML
-    element that will be represented by a Lua table following these
-    same rules.</li>
+	<li>the element's children are stored at the <em>array-part</em> of
+	the table. A child could be an ordinary string or another XML
+	element that will be represented by a Lua table following these
+	same rules.</li>
 </ul>
 
 

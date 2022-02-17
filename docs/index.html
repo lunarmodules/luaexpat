@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
-    <link rel="stylesheet" href="./doc.css" type="text/css"/>
+	<link rel="stylesheet" href="./doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
@@ -11,9 +11,9 @@
 <div id="container">
 
 <div id="product">
-	<div id="product_logo">
-        <a href="http://www.keplerproject.org"><img alt="LuaExpat logo" src="luaexpat.png"/></a>
-    </div>
+	<div id="product_logo"><a href="http://www.keplerproject.org">
+		<img alt="LuaExpat logo" src="luaexpat.png"/>
+	</a></div>
 	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
 	<div id="product_description">XML Expat parsing for the Lua programming language</div>
 </div> <!-- id="product" -->
@@ -44,12 +44,12 @@
 		</li>
 		<li><a href="examples.html">Examples</a></li>
 		<li><a href="lom.html">Lua Object Model</a></li>
-        <li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
-            <ul>
-                <li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
-                <li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
-            </ul>
-        </li>
+		<li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
+			<ul>
+				<li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
+				<li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
+			</ul>
+		</li>
 		<li><a href="license.html">License</a></li>
 	</ul>
 </div> <!-- id="navigation" -->
@@ -74,8 +74,8 @@ Linux, Windows (XP) and MacOS X with Expat 2.1.0.</p>
 <p>The latest LuaExpat release is 1.3.0.</p>
 
 <ul>
-  <li><a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.3.0.tar.gz">luaexpat-1.3.0.tar.gz</a> <a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.3.0.tar.gz.asc">(signature)</a></li>
-  <li><a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.2.0.tar.gz">luaexpat-1.2.0.tar.gz</a> <a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.2.0.tar.gz.asc">(signature)</a></li>
+	<li><a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.3.0.tar.gz">luaexpat-1.3.0.tar.gz</a> <a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.3.0.tar.gz.asc">(signature)</a></li>
+	<li><a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.2.0.tar.gz">luaexpat-1.2.0.tar.gz</a> <a href="https://matthewwild.co.uk/projects/luaexpat/luaexpat-1.2.0.tar.gz.asc">(signature)</a></li>
 </ul>
 
 <p>Older LuaExpat releases can be downloaded from
@@ -90,56 +90,56 @@ for Windows</a> project.</p>
 <h2><a name="history"></a>History</h2>
 
 <dl class="history">
-    <dt><strong>Version 1.3.0</strong> [02/Apr/2014]</dt>
-    <dd>
-      <ul>
-        <li>Lua 5.2 support (thanks Tomás Guisasola Gorham)</li>
-        <li>support for the XmlDecl handler</li>
-        <li>add parser:getcurrentbytecount() (XML_GetCurrentByteCount)</li>
-        <li>ability to disable CharacterData merging</li>
-        <li>Makefile improvements (thanks Vadim Misbakh-Soloviov)</li>
-      </ul>
-    </dd>
+	<dt><strong>Version 1.3.0</strong> [02/Apr/2014]</dt>
+	<dd>
+		<ul>
+			<li>Lua 5.2 support (thanks Tomás Guisasola Gorham)</li>
+			<li>support for the XmlDecl handler</li>
+			<li>add parser:getcurrentbytecount() (XML_GetCurrentByteCount)</li>
+			<li>ability to disable CharacterData merging</li>
+			<li>Makefile improvements (thanks Vadim Misbakh-Soloviov)</li>
+		</ul>
+	</dd>
 
-    <dt><strong>Version 1.2.0</strong> [02/Jun/2011]</dt>
-    <dd>
-      <em>New maintainer: Matthew Wild</em>
-      <ul>
-        <li>support for the StartDoctypeDecl handler</li>
-        <li>add parser:stop() to abort parsing inside a callback</li>
-      </ul>
-    </dd>
+	<dt><strong>Version 1.2.0</strong> [02/Jun/2011]</dt>
+	<dd>
+		<em>New maintainer: Matthew Wild</em>
+		<ul>
+			<li>support for the StartDoctypeDecl handler</li>
+			<li>add parser:stop() to abort parsing inside a callback</li>
+		</ul>
+	</dd>
 
-    <dt><strong>Version 1.1.0</strong> [05/Jun/2007]</dt>
-    <dd>
-      <ul>
-        <li>adapted to work on both Lua 5.0 and Lua 5.1</li>
-        <li>updated to use Expat 2.0.0</li>
-      </ul>
-    </dd>
+	<dt><strong>Version 1.1.0</strong> [05/Jun/2007]</dt>
+	<dd>
+		<ul>
+			<li>adapted to work on both Lua 5.0 and Lua 5.1</li>
+			<li>updated to use Expat 2.0.0</li>
+		</ul>
+	</dd>
 
-    <dt><strong><a href="http://www.keplerproject.org/luaexpat/1.0">Version 1.0.2</a></strong> [23/Mar/2006]</dt>
-    <dd>
-      <ul>
-        <li>minor bugfix, <code>lom</code> correct module name is <code>lxp.lom</code></li>
-      </ul>
-    </dd>
+	<dt><strong><a href="http://www.keplerproject.org/luaexpat/1.0">Version 1.0.2</a></strong> [23/Mar/2006]</dt>
+	<dd>
+		<ul>
+			<li>minor bugfix, <code>lom</code> correct module name is <code>lxp.lom</code></li>
+		</ul>
+	</dd>
 
-    <dt><strong>Version 1.0.1</strong> [06/Jun/2005]</dt>
-    <dd>
-      <ul>
-        <li>minor changes for compatibility with Expat version 1.95.8</li>
-      </ul>
-    </dd>
+	<dt><strong>Version 1.0.1</strong> [06/Jun/2005]</dt>
+	<dd>
+		<ul>
+			<li>minor changes for compatibility with Expat version 1.95.8</li>
+		</ul>
+	</dd>
 
-    <dt><strong>Version 1.0</strong> [2/Dec/2004]</dt>
-    <dd />
+	<dt><strong>Version 1.0</strong> [2/Dec/2004]</dt>
+	<dd />
 
-    <dt><strong>Version 1.0 Beta</strong> [4/Apr/2004]</dt>
-    <dd />
+	<dt><strong>Version 1.0 Beta</strong> [4/Apr/2004]</dt>
+	<dd />
 
-    <dt><strong>Version 1.0 Alpha</strong> [10/Dec/2003]</dt>
-    <dd />
+	<dt><strong>Version 1.0 Alpha</strong> [10/Dec/2003]</dt>
+	<dd />
 </dl>
 
 <h2><a name="references"></a>References</h2>

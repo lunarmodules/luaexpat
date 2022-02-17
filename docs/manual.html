@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
-    <link rel="stylesheet" href="./doc.css" type="text/css"/>
+	<link rel="stylesheet" href="./doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
@@ -12,7 +12,7 @@
 
 <div id="product">
 	<div id="product_logo"><a href="http://www.keplerproject.org">
-        <img alt="LuaExpat logo" src="luaexpat.png"/>
+		<img alt="LuaExpat logo" src="luaexpat.png"/>
 	</a></div>
 	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
 	<div id="product_description">XML Expat parsing for the Lua programming language</div>
@@ -37,18 +37,19 @@
 		<li><strong>Manual</strong>
 			<ul>
 				<li><a href="manual.html#introduction">Introduction</a></li>
+				<li><a href="manual.html#building">Building</a></li>
 				<li><a href="manual.html#installation">Installation</a></li>
 				<li><a href="manual.html#parser">Parser Objects</a></li>
 			</ul>
 		</li>
 		<li><a href="examples.html">Examples</a></li>
 		<li><a href="lom.html">Lua Object Model</a></li>
-        <li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
-            <ul>
-                <li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
-                <li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
-            </ul>
-        </li>
+		<li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
+			<ul>
+				<li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
+				<li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
+			</ul>
+		</li>
 		<li><a href="license.html">License</a></li>
 	</ul>
 </div> <!-- id="navigation" -->
@@ -63,12 +64,12 @@ SAX is the <em>Simple API for XML</em> and allows programs to:
 </p>
 
 <ul>
-    <li>process a XML document incrementally, thus being able to handle
-    huge documents without memory penalties;</li>
+	<li>process a XML document incrementally, thus being able to handle
+	huge documents without memory penalties;</li>
 
-    <li>register handler functions which are called by the parser during
-    the processing of the document, handling the document elements or
-    text.</li>
+	<li>register handler functions which are called by the parser during
+	the processing of the document, handling the document elements or
+	text.</li>
 </ul>
 
 <p>With an event-based API like SAX the XML document can be fed to
@@ -131,65 +132,65 @@ assume no behaviour for any undeclared callbacks.</p>
 <h4>Constructor</h4>
 
 <dl class="reference">
-    <dt><strong>lxp.new(<em>callbacks [, separator[, merge_character_data]]</em>)</strong></dt>
-    <dd>The parser is created by a call to the function <strong>lxp.new</strong>,
-    which returns the created parser or raises a Lua error. It
-    receives the callbacks table and optionally the parser <a href="#separator">
-    separator character</a> used in the namespace expanded element names.
-    If <em>merge_character_data</em> is false then LuaExpat will not combine multiple
-    CharacterData calls into one. For more info on this behaviour see CharacterData below.</dd>
+	<dt><strong>lxp.new(<em>callbacks [, separator[, merge_character_data]]</em>)</strong></dt>
+	<dd>The parser is created by a call to the function <strong>lxp.new</strong>,
+	which returns the created parser or raises a Lua error. It
+	receives the callbacks table and optionally the parser <a href="#separator">
+	separator character</a> used in the namespace expanded element names.
+	If <em>merge_character_data</em> is false then LuaExpat will not combine multiple
+	CharacterData calls into one. For more info on this behaviour see CharacterData below.</dd>
 </dl>
 
 <h4>Methods</h4>
 
 <dl class="reference">
-    <dt><strong>parser:close()</strong></dt>
-    <dd>Closes the parser, freeing all memory used by it. A call to
-    parser:close() without a previous call to parser:parse() could
-    result in an error.</dd>
+	<dt><strong>parser:close()</strong></dt>
+	<dd>Closes the parser, freeing all memory used by it. A call to
+	parser:close() without a previous call to parser:parse() could
+	result in an error.</dd>
 
-    <dt><strong>parser:getbase()</strong></dt>
-    <dd>Returns the base for resolving relative URIs.</dd>
+	<dt><strong>parser:getbase()</strong></dt>
+	<dd>Returns the base for resolving relative URIs.</dd>
 
-    <dt><strong>parser:getcallbacks()</strong></dt>
-    <dd>Returns the callbacks table.</dd>
+	<dt><strong>parser:getcallbacks()</strong></dt>
+	<dd>Returns the callbacks table.</dd>
 
-    <dt><strong>parser:parse(s)</strong></dt>
-    <dd>Parse some more of the document. The string <em>s</em> contains
-    part (or perhaps all) of the document. When called without
-    arguments the document is closed (but the parser still has to be
-    closed).<br/>
-    The function returns a non nil value when the parser has been
-    succesfull, and when the parser finds an error it returns five
-    results: nil, <em>msg</em>, <em>line</em>, <em>col</em>, and
-    <em>pos</em>, which are the error message, the line number,
-    column number and absolute position of the error in the XML document.</dd>
+	<dt><strong>parser:parse(s)</strong></dt>
+	<dd>Parse some more of the document. The string <em>s</em> contains
+	part (or perhaps all) of the document. When called without
+	arguments the document is closed (but the parser still has to be
+	closed).<br/>
+	The function returns a non nil value when the parser has been
+	succesfull, and when the parser finds an error it returns five
+	results: nil, <em>msg</em>, <em>line</em>, <em>col</em>, and
+	<em>pos</em>, which are the error message, the line number,
+	column number and absolute position of the error in the XML document.</dd>
 
-    <dt><strong>parser:pos()</strong></dt>
-    <dd>Returns three results: the current parsing line, column, and
-    absolute position.</dd>
+	<dt><strong>parser:pos()</strong></dt>
+	<dd>Returns three results: the current parsing line, column, and
+	absolute position.</dd>
 
-    <dt><strong>parser:getcurrentbytecount()</strong></dt>
-    <dd>Return the number of bytes of input corresponding to the current
-    event. This function can only be called inside a handler, in other
-    contexts it will return 0. Do not use inside a CharacterData handler
-    unless CharacterData merging has been disabled (see lxp.new).</dd>
+	<dt><strong>parser:getcurrentbytecount()</strong></dt>
+	<dd>Return the number of bytes of input corresponding to the current
+	event. This function can only be called inside a handler, in other
+	contexts it will return 0. Do not use inside a CharacterData handler
+	unless CharacterData merging has been disabled (see lxp.new).</dd>
 
-    <dt><strong>parser:setbase(base)</strong></dt>
-    <dd>Sets the <em>base</em> to be used for resolving relative URIs in
-    system identifiers.</dd>
+	<dt><strong>parser:setbase(base)</strong></dt>
+	<dd>Sets the <em>base</em> to be used for resolving relative URIs in
+	system identifiers.</dd>
 
-    <dt><strong>parser:setencoding(encoding)</strong></dt>
-    <dd>Set the encoding to be used by the parser. There are four
-    built-in encodings, passed as strings: "US-ASCII",
-    "UTF-8", "UTF-16", and "ISO-8859-1".</dd>
+	<dt><strong>parser:setencoding(encoding)</strong></dt>
+	<dd>Set the encoding to be used by the parser. There are four
+	built-in encodings, passed as strings: "US-ASCII",
+	"UTF-8", "UTF-16", and "ISO-8859-1".</dd>
 
-    <dt><strong>parser:stop()</strong></dt>
-    <dd>Abort the parser and prevent it from parsing any further
-    through the data it was last passed. Use to halt parsing the
-    document when an error is discovered inside a callback, for
-    example. The parser object cannot accept more data after
-    this call.</dd>
+	<dt><strong>parser:stop()</strong></dt>
+	<dd>Abort the parser and prevent it from parsing any further
+	through the data it was last passed. Use to halt parsing the
+	document when an error is discovered inside a callback, for
+	example. The parser object cannot accept more data after
+	this call.</dd>
 </dl>
 
 <h4>Callbacks</h4>
@@ -233,106 +234,106 @@ calling parser itself, thus allowing the same functions to be used
 for more than one parser for example.</p>
 
 <dl class="reference">
-    <dt><strong>callbacks.CharacterData = function(parser, string)</strong></dt>
-    <dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.
-    Note that LuaExpat automatically combines multiple CharacterData events
-    from Expat into a single call to this handler, unless <em>merge_character_data</em>
-    is set to false when calling lxp.new().</dd>
+	<dt><strong>callbacks.CharacterData = function(parser, string)</strong></dt>
+	<dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.
+	Note that LuaExpat automatically combines multiple CharacterData events
+	from Expat into a single call to this handler, unless <em>merge_character_data</em>
+	is set to false when calling lxp.new().</dd>
 
-    <dt><strong>callbacks.Comment = function(parser, string)</strong></dt>
-    <dd>Called when the <em>parser</em> recognizes an XML comment
-    <em>string</em>.</dd>
+	<dt><strong>callbacks.Comment = function(parser, string)</strong></dt>
+	<dd>Called when the <em>parser</em> recognizes an XML comment
+	<em>string</em>.</dd>
 
-    <dt><strong>callbacks.Default = function(parser, string)</strong></dt>
-    <dd>Called when the <em>parser</em> has a <em>string</em>
-    corresponding to any characters in the document which wouldn't
-    otherwise be handled. Using this handler has the side effect of
-    turning off expansion of references to internally defined general
-    entities. Instead these references are passed to the default
-    handler.</dd>
+	<dt><strong>callbacks.Default = function(parser, string)</strong></dt>
+	<dd>Called when the <em>parser</em> has a <em>string</em>
+	corresponding to any characters in the document which wouldn't
+	otherwise be handled. Using this handler has the side effect of
+	turning off expansion of references to internally defined general
+	entities. Instead these references are passed to the default
+	handler.</dd>
 
-    <dt><strong>callbacks.DefaultExpand = function(parser, string)</strong></dt>
-    <dd>Called when the <em>parser</em> has a <em>string</em>
-    corresponding to any characters in the document which wouldn't
-    otherwise be handled. Using this handler doesn't affect expansion
-    of internal entity references.</dd>
+	<dt><strong>callbacks.DefaultExpand = function(parser, string)</strong></dt>
+	<dd>Called when the <em>parser</em> has a <em>string</em>
+	corresponding to any characters in the document which wouldn't
+	otherwise be handled. Using this handler doesn't affect expansion
+	of internal entity references.</dd>
 
-    <dt><strong>callbacks.EndCdataSection = function(parser)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the end of a CDATA
-    section.</dd>
+	<dt><strong>callbacks.EndCdataSection = function(parser)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the end of a CDATA
+	section.</dd>
 
-    <dt><strong>callbacks.EndElement = function(parser, elementName)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the ending of an XML
-    element with <em>elementName</em>.</dd>
+	<dt><strong>callbacks.EndElement = function(parser, elementName)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the ending of an XML
+	element with <em>elementName</em>.</dd>
 
-    <dt><strong>callbacks.EndNamespaceDecl = function(parser, namespaceName)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the ending of an XML
-    namespace with <em>namespaceName</em>. The handling of the end
-    namespace is done after the handling of the end tag for the element
-    the namespace is associated with.</dd>
+	<dt><strong>callbacks.EndNamespaceDecl = function(parser, namespaceName)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the ending of an XML
+	namespace with <em>namespaceName</em>. The handling of the end
+	namespace is done after the handling of the end tag for the element
+	the namespace is associated with.</dd>
 
-    <dt><strong>callbacks.ExternalEntityRef = function(parser, subparser, base, systemId, publicId)</strong></dt>
-    <dd>Called when the <em>parser</em> detects an external entity
-    reference.<br/><br/>
-    The <em>subparser</em> is a LuaExpat parser created with the
-    same callbacks and Expat context as the <em>parser</em> and should
-    be used to parse the external entity.<br/>
-    The <em>base</em> parameter is the base to use for relative
-    system identifiers. It is set by parser:setbase and may be nil.<br/>
-    The <em>systemId</em> parameter is the system identifier
-    specified in the entity declaration and is never nil.<br/>
-    The <em>publicId</em> parameter is the public id given in the
-    entity declaration and may be nil.</dd>
+	<dt><strong>callbacks.ExternalEntityRef = function(parser, subparser, base, systemId, publicId)</strong></dt>
+	<dd>Called when the <em>parser</em> detects an external entity
+	reference.<br/><br/>
+	The <em>subparser</em> is a LuaExpat parser created with the
+	same callbacks and Expat context as the <em>parser</em> and should
+	be used to parse the external entity.<br/>
+	The <em>base</em> parameter is the base to use for relative
+	system identifiers. It is set by parser:setbase and may be nil.<br/>
+	The <em>systemId</em> parameter is the system identifier
+	specified in the entity declaration and is never nil.<br/>
+	The <em>publicId</em> parameter is the public id given in the
+	entity declaration and may be nil.</dd>
 
-    <dt><strong>callbacks.NotStandalone = function(parser)</strong></dt>
-    <dd>Called when the <em>parser</em> detects that the document is not
-    "standalone". This happens when there is an external subset or a
-    reference to a parameter entity, but the document does not have standalone set
-    to "yes" in an XML declaration.</dd>
+	<dt><strong>callbacks.NotStandalone = function(parser)</strong></dt>
+	<dd>Called when the <em>parser</em> detects that the document is not
+	"standalone". This happens when there is an external subset or a
+	reference to a parameter entity, but the document does not have standalone set
+	to "yes" in an XML declaration.</dd>
 
-    <dt><strong>callbacks.NotationDecl = function(parser, notationName, base, systemId, publicId)</strong></dt>
-    <dd>Called when the <em>parser</em> detects XML notation
-    declarations with <em>notationName</em><br/>
-    The <em>base</em> parameter is the base to use for relative
-    system identifiers. It is set by parser:setbase and may be nil.<br/>
-    The <em>systemId</em> parameter is the system identifier
-    specified in the entity declaration and is never nil.<br/>
-    The <em>publicId</em> parameter is the public id given in the
-    entity declaration and may be nil.</dd>
+	<dt><strong>callbacks.NotationDecl = function(parser, notationName, base, systemId, publicId)</strong></dt>
+	<dd>Called when the <em>parser</em> detects XML notation
+	declarations with <em>notationName</em><br/>
+	The <em>base</em> parameter is the base to use for relative
+	system identifiers. It is set by parser:setbase and may be nil.<br/>
+	The <em>systemId</em> parameter is the system identifier
+	specified in the entity declaration and is never nil.<br/>
+	The <em>publicId</em> parameter is the public id given in the
+	entity declaration and may be nil.</dd>
 
-    <dt><strong>callbacks.ProcessingInstruction = function(parser, target, data)</strong></dt>
-    <dd>Called when the <em>parser</em> detects XML processing
-    instructions. The <em>target</em> is the first word in the
-    processing instruction. The <em>data</em> is the rest of the
-    characters in it after skipping all whitespace after the initial
-    word.</dd>
+	<dt><strong>callbacks.ProcessingInstruction = function(parser, target, data)</strong></dt>
+	<dd>Called when the <em>parser</em> detects XML processing
+	instructions. The <em>target</em> is the first word in the
+	processing instruction. The <em>data</em> is the rest of the
+	characters in it after skipping all whitespace after the initial
+	word.</dd>
 
-    <dt><strong>callbacks.StartCdataSection = function(parser)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the begining of an XML
-    CDATA section.</dd>
+	<dt><strong>callbacks.StartCdataSection = function(parser)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the begining of an XML
+	CDATA section.</dd>
 
-    <dt><strong>callbacks.StartDoctypeDecl = function(parser, name, sysid, pubid, has_internal_subset)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the beginning of an XML
-    DTD (DOCTYPE) section. These precede the XML root element and take
-    the form:
+	<dt><strong>callbacks.StartDoctypeDecl = function(parser, name, sysid, pubid, has_internal_subset)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the beginning of an XML
+	DTD (DOCTYPE) section. These precede the XML root element and take
+	the form:
 <pre class="example">
 &lt;!DOCTYPE root_elem PUBLIC "example"&gt;
 </pre>
-    </dd>
+	</dd>
 
-    <dt><strong>callbacks.StartElement = function(parser, elementName, attributes)</strong></dt>
-    <dd>Called when the <em>parser</em> detects the begining of an XML
-    element with <em>elementName</em>.<br/>
-    The <em>attributes</em> parameter is a Lua table with all the
-    element attribute names and values. The table contains an entry for
-    every attribute in the element start tag and entries for the
-    default attributes for that element.<br/>
-    The attributes are listed by name (including the inherited ones)
-    and by position (inherited attributes are not considered in the
-    position list).<br/>
-    As an example if the <em>book</em> element has attributes
-    <em>author</em>, <em>title</em> and an optional <em>format</em>
-    attribute (with "printed" as default value),
+	<dt><strong>callbacks.StartElement = function(parser, elementName, attributes)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the begining of an XML
+	element with <em>elementName</em>.<br/>
+	The <em>attributes</em> parameter is a Lua table with all the
+	element attribute names and values. The table contains an entry for
+	every attribute in the element start tag and entries for the
+	default attributes for that element.<br/>
+	The attributes are listed by name (including the inherited ones)
+	and by position (inherited attributes are not considered in the
+	position list).<br/>
+	As an example if the <em>book</em> element has attributes
+	<em>author</em>, <em>title</em> and an optional <em>format</em>
+	attribute (with "printed" as default value),
 <pre class="example">
 &lt;book author="Ierusalimschy, Roberto" title="Programming in Lua"&gt;
 </pre>
@@ -345,32 +346,32 @@ for more than one parser for example.</p>
  title = "Programming in Lua"}
 </pre></dd>
 
-    <dt><strong>callbacks.StartNamespaceDecl = function(parser, namespaceName, namespaceUri)</strong></dt>
-    <dd>Called when the <em>parser</em> detects an XML namespace
-    declaration. The <em>namespaceName</em> can be nil. Namespace declarations
-    occur inside start tags, but the StartNamespaceDecl handler is
-    called before the StartElement handler for each namespace declared
-    in that start tag.</dd>
+	<dt><strong>callbacks.StartNamespaceDecl = function(parser, namespaceName, namespaceUri)</strong></dt>
+	<dd>Called when the <em>parser</em> detects an XML namespace
+	declaration. The <em>namespaceName</em> can be nil. Namespace declarations
+	occur inside start tags, but the StartNamespaceDecl handler is
+	called before the StartElement handler for each namespace declared
+	in that start tag.</dd>
 
-    <dt><strong>callbacks.UnparsedEntityDecl = function(parser, entityName, base, systemId, publicId, notationName)</strong></dt>
-    <dd>Called when the <em>parser</em> receives declarations of
-    unparsed entities. These are entity declarations that have a
-    notation (NDATA) field.<br/>
-    As an example, in the chunk
+	<dt><strong>callbacks.UnparsedEntityDecl = function(parser, entityName, base, systemId, publicId, notationName)</strong></dt>
+	<dd>Called when the <em>parser</em> receives declarations of
+	unparsed entities. These are entity declarations that have a
+	notation (NDATA) field.<br/>
+	As an example, in the chunk
 <pre class="example">
 &lt;!ENTITY logo SYSTEM "images/logo.gif" NDATA gif&gt;
 </pre>
-    <em>entityName</em> would be "logo", <em>systemId</em> would be
-    "images/logo.gif" and <em>notationName</em> would be "gif".
-    For this example the <em>publicId</em> parameter would be nil.
-    The <em>base</em> parameter would be whatever has been set with
-    <code>parser:setbase</code>. If not set, it would be nil.</dd>
+	<em>entityName</em> would be "logo", <em>systemId</em> would be
+	"images/logo.gif" and <em>notationName</em> would be "gif".
+	For this example the <em>publicId</em> parameter would be nil.
+	The <em>base</em> parameter would be whatever has been set with
+	<code>parser:setbase</code>. If not set, it would be nil.</dd>
 
-    <dt><strong>callbacks.XmlDecl = function(parser, version, encoding, standalone)</strong></dt>
-    <dd>Called when the <em>parser</em> encounters an XML document declaration (these are
-    optional, and valid only at the start of the document). The callback receives
-    the declared XML <em>version</em> and document <em>encoding</em> as strings, and
-    <em>standalone</em> as a boolean.</dd>
+	<dt><strong>callbacks.XmlDecl = function(parser, version, encoding, standalone)</strong></dt>
+	<dd>Called when the <em>parser</em> encounters an XML document declaration (these are
+	optional, and valid only at the start of the document). The callback receives
+	the declared XML <em>version</em> and document <em>encoding</em> as strings, and
+	<em>standalone</em> as a boolean.</dd>
 </dl>
 
 <h4><a name="separator"></a>The separator character</h4>
