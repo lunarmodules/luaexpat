@@ -286,7 +286,9 @@ for more than one parser for example.</p>
 	entity declaration and may be nil.</dd>
 
 	<dt><strong>callbacks.NotStandalone = function(parser)</strong></dt>
-	<dd>Called when the <em>parser</em> detects that the document is not
+	<dd>This callback expects a return value, if the callback returns
+	a falsy value, parsing will be aborted. The callback will be
+	called when the <em>parser</em> detects that the document is not
 	"standalone". This happens when there is an external subset or a
 	reference to a parameter entity, but the document does not have standalone set
 	to "yes" in an XML declaration.</dd>
