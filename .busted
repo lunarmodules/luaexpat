@@ -1,0 +1,9 @@
+return {
+  default = {
+    verbose = true,
+    lazy = true,
+    coverage = false,
+    output = "gtest",
+    --helper = "./spec/helper.lua",
+  },
+}

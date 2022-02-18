@@ -23,6 +23,10 @@ jobs:
 
     - uses: leafo/gh-actions-luarocks@v4
 
+    - name: dependencies
+      run: |
+        luarocks install busted
+
     - name: build expat
       run: |
         git clone -b R_$(echo $EXPAT_VERSION | sed "s/\./_/g") --single-branch https://github.com/libexpat/libexpat.git
@@ -40,3 +44,7 @@ jobs:
         lua tests/test.lua
         lua tests/test-lom.lua
         lua tests/test-table.lua
+
+    - name: Busted tests
+      run: |
+        busted --Xoutput "--color"
