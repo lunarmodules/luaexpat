@@ -60,11 +60,9 @@
 
 <p>Lua Object Model (LOM) is a representation of XML elements
 through Lua data types. Currently it is not supposed to be 100%
-complete, but simple.</p>
-
-<p>LuaExpat's distribution provides an implementation of LOM that
-gets an XML documenta (a string) and transforms it to a Lua table.
-The only function exported is <strong><code>lxp.lom.parse</code></strong>.</p>
+complete, but simple. LuaExpat provides an implementation of LOM that
+gets an XML document and transforms it to a Lua table.
+</p>
 
 
 <h2><a name="characteristics"></a>Characteristics</h2>
@@ -77,8 +75,7 @@ table has three special characteristics:</p>
 	element's name;</li>
 
 	<li>an optional field called <strong><code>attr</code></strong> that stores
-	the element's attributes (see <a href="#attributes">attribute's
-	section</a>); and</li>
+	the element's attributes; and</li>
 
 	<li>the element's children are stored at the <em>array-part</em> of
 	the table. A child could be an ordinary string or another XML
@@ -86,15 +83,45 @@ table has three special characteristics:</p>
 	same rules.</li>
 </ul>
 
-
-<h3><a name="attributes"></a>Attributes</h3>
-
 <p>The special field <strong><code>attr</code></strong> is a Lua table that
 stores the XML element's attributes as pairs
 <em>&lt;key&gt;=&lt;value&gt;</em>. To assure an order (if
 necessary), the sequence of <em>key</em>s could be placed at the
 <em>array-part</em> of this same table.</p>
 
+<h3>Functions</h3>
+
+<dl class="reference">
+	<dt><strong>lom.parse(string|function|table|file)</strong></dt>
+	<dd>Parses the input into the LOM table format and returns it. The input can be;
+		<ul>
+			<li><em>string</em>: the entire XML document as a string</li>
+			<li><em>function</em>: an iterator that returns the next chunk of the
+			XML document on each call, and returns <em>nil</em> when finished</li>
+			<li><em>table</em>: an array like table that contains the chunks
+			that combined make up the XML document</li>
+			<li><em>file</em>: an open file handle from which the XML document will
+			be read line-by-line, using <code>read("L")</code>. <strong>Note</strong>:
+			the file will not be closed when done.</li>
+		</ul>
+		Upon parsing errors it will return <code>nil, err, line, col, pos</code>.
+	</dd>
+
+	<dt><strong>lom.find_elem(node, tag)</strong></dt>
+	<dd>Traverses the tree recursively, and returns the first element that matches
+	the <em>tag</em>. Parameter <em>tag</em> (string) is the tag name to look for.
+	The <em>node</em> table can be the result from the <em>parse</em> function, or
+	any of its children.</dd>
+
+	<dt><strong>lom.list_children(node[, tag])</strong></dt>
+	<dd>Iterator returning all child tags of a node (non-recursive). It will only
+	children that are tags, and will skip text-nodes.
+	The <em>node</em> table can be the result from the <em>parse</em> function, or
+	any of its children.
+	If the optional parameter <em>tag</em> (string) is given, then the iterator
+	will only return tags that match the tag name.
+	</dd>
+</dl>
 
 <h2><a name="examples"></a>Examples</h2>
 
