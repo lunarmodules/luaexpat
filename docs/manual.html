@@ -11,7 +11,7 @@
 <div id="container">
 
 <div id="product">
-	<div id="product_logo"><a href="http://www.keplerproject.org">
+	<div id="product_logo"><a href="https://github.com/lunarmodules/luaexpat">
 		<img alt="LuaExpat logo" src="luaexpat.png"/>
 	</a></div>
 	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
@@ -31,7 +31,6 @@
 				<li><a href="index.html#history">History</a></li>
 				<li><a href="index.html#references">References</a></li>
 				<li><a href="index.html#credits">Credits</a></li>
-				<li><a href="index.html#contact">Contact</a></li>
 			</ul>
 		</li>
 		<li><strong>Manual</strong>
@@ -44,10 +43,11 @@
 		</li>
 		<li><a href="examples.html">Examples</a></li>
 		<li><a href="lom.html">Lua Object Model</a></li>
-		<li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
+		<li><a href="https://github.com/lunarmodules/luaexpat">Project</a>
 			<ul>
-				<li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
-				<li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
+				<li><a href="https://github.com/lunarmodules/luaexpat/issues">Bug Tracker</a></li>
+				<li><a href="https://github.com/lunarmodules/luaexpat">Source code</a></li>
+				<li><a href="https://lunarmodules.github.io/luaexpat/">Documentation</a></li>
 			</ul>
 		</li>
 		<li><a href="license.html">License</a></li>
@@ -59,7 +59,7 @@
 <h2><a name="introduction"></a>Introduction</h2>
 
 <p>LuaExpat is a <a href="http://www.saxproject.org/">SAX</a> XML
-parser based on the <a href="http://www.libexpat.org/">Expat</a> library.
+parser based on the <a href="https://www.libexpat.org/">Expat</a> library.
 SAX is the <em>Simple API for XML</em> and allows programs to:
 </p>
 
@@ -86,18 +86,16 @@ implements the <a href="lom.html">Lua Object Model</a>.</p>
 <h2><a name="building"></a>Building</h2>
 
 <p>
-LuaExpat could be built to Lua 5.1 or to Lua 5.2.
-In both cases,
-the language library and headers files for the desired version
+LuaExpat could be built for Lua 5.1 to 5.4.
+The language library and headers files for the desired version
 must be installed properly.
 LuaExpat also depends on Expat 2.0.0+ which should also be installed.
 </p>
+
+<p>The simplest way of building and installing LuaExpat is through LuaRocks.</p>
+
 <p>
-LuaExpat offers a Makefile and a separate configuration file,
-<code>config</code>,
-which should be edited to suit the particularities of the target platform
-before running
-<code>make</code>.
+LuaExpat also offers a Makefile.
 The file has some definitions like paths to the external libraries,
 compiler options and the like.
 One important definition is the version of Lua language,
@@ -107,16 +105,11 @@ which is not obtained from the installed software.
 
 <h2><a name="installation"></a>Installation</h2>
 
-<p>The compiled binary file should be copied to a directory in your
+<p> installation can be done using LuaRocks or <code>make install</code>.</p>
+
+<p>Manually, the compiled binary file should be copied to a directory in your
 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.cpath">C path</a>.
-Lua 5.0 users should also install
-<a href="http://www.keplerproject.org/compat">Compat-5.1</a>.</p>
-
-<p>Windows users can use the binary version of LuaExpat (<code>lxp.dll</code>, compatible with
-<a href="http://luabinaries.luaforge.net">LuaBinaries</a>) available at
-<a href="http://luaforge.net/projects/luaexpat/files">LuaForge</a>.</p>
-
-<p>The file <code>lom.lua</code> should be copied to a directory in your
+The Lua files <code>./src/lxp/*.lua</code> should be copied to a directory in your
 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.path">Lua path</a>.</p>
 
 <h2><a name="parser"></a>Parser objects</h2>
