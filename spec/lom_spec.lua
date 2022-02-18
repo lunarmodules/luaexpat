@@ -2,7 +2,7 @@ local u_acute_utf8 = string.char(195)..string.char(186) -- C3 BA
 local u_acute_latin1 = string.char(250) -- FA
 
 
-describe("Lua object model: ", function()
+describe("Lua object model:", function()
 
 	local lom
 	before_each(function()
@@ -108,13 +108,36 @@ describe("Lua object model: ", function()
 			local header = [[<?xml version="1.0" encoding="]]..encoding..[["?>]]..(test.doctype or '')
 			local doc = header..test.root_elem
 
+
 			it("test case " .. i .. ": string (all at once)", function()
 				local o = assert(lom.parse(doc))
 				assert.same(o, test.lom)
 			end)
 
+
 			it("test case " .. i .. ": iterator", function()
 				local o = assert(lom.parse(string.gmatch(doc, ".-%>")))
+				assert.same(o, test.lom)
+			end)
+
+
+			it("test case " .. i .. ": file", function()
+				local fn = assert(require("pl.path").tmpname())
+				finally(function()
+					os.remove(fn)
+				end)
+				assert(require("pl.utils").writefile(fn, doc))
+				local o = assert(lom.parse(assert(io.open(fn))))
+				assert.same(o, test.lom)
+			end)
+
+
+			it("test case " .. i .. ": table", function()
+				local t = {}
+				for i = 1, #doc, 10 do
+					t[#t+1] = doc:sub(i, i+9)
+				end
+				local o = assert(lom.parse(t))
 				assert.same(o, test.lom)
 			end)
 
@@ -124,7 +147,6 @@ describe("Lua object model: ", function()
 
 
 
-	local output
 	local input = [[<?xml version="1.0"?>
 		<a1>
 			<b1>
