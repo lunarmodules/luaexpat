@@ -41,7 +41,6 @@ jobs:
 
     - name: test suite
       run: |
-        lua tests/test.lua
         lua tests/test-table.lua
 
     - name: Busted tests
