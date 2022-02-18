@@ -101,7 +101,7 @@ necessary), the sequence of <em>key</em>s could be placed at the
 			<li><em>table</em>: an array like table that contains the chunks
 			that combined make up the XML document</li>
 			<li><em>file</em>: an open file handle from which the XML document will
-			be read line-by-line, using <code>read("L")</code>. <strong>Note</strong>:
+			be read line-by-line, using <code>read()</code>. <strong>Note</strong>:
 			the file will not be closed when done.</li>
 		</ul>
 		Upon parsing errors it will return <code>nil, err, line, col, pos</code>.
