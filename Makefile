@@ -33,3 +33,4 @@ install:
 
 clean:
 	$(RM) src/$(LIBNAME) $(OBJS)
+	$(RM) ./$(LIBNAME)
