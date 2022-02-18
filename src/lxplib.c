@@ -124,7 +124,7 @@ static int getHandle (lxp_userdata *xpu, const char *handle) {
     return 0;
   }
   if (!lua_isfunction(L, -1)) {
-    luaL_error(L, "lxp `%s' callback is not a function", handle);
+    luaL_error(L, "lxp '%s' callback is not a function", handle);
   }
   lua_pushvalue(L, 1);  /* first argument in every call (self) */
   return 1;
@@ -497,10 +497,15 @@ static int lxp_parse (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   size_t len;
   const char *s = luaL_optlstring(L, 2, NULL, &len);
-  if (xpu->state == XPSfinished && s != NULL) {
-    lua_pushnil(L);
-    lua_pushliteral(L, "cannot parse - document is finished");
-    return 2;
+  if (xpu->state == XPSfinished) {
+    if (s != NULL) {
+      lua_pushnil(L);
+      lua_pushliteral(L, "cannot parse - document is finished");
+      return 2;
+    } else {
+      lua_pushboolean(L, 1);
+      return 1;
+    }
   }
   return parse_aux(L, xpu, s, len);
 }
