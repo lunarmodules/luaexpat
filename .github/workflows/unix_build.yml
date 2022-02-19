@@ -41,8 +41,4 @@ jobs:
 
     - name: test suite
       run: |
-        lua tests/test-table.lua
-
-    - name: Busted tests
-      run: |
         busted --Xoutput "--color"
