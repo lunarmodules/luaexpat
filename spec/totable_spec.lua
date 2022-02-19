@@ -279,6 +279,7 @@ local tests = {
 }
 
 
+
 describe("totable:", function()
 
 	local totable
@@ -292,23 +293,57 @@ describe("totable:", function()
 		describe("case " .. i .. ":", function()
 
 			local preamble = [[<?xml version="1.0" encoding="ISO-8859-1"?>]]
-			local input = preamble .. test.input
+			local doc = preamble .. test.input
 
-			it("totable", function()
-				local result = assert(totable.parse(input))
-				assert.same(test.totable, result)
+
+
+			describe("parse:", function()
+
+				it("string (all at once)", function()
+					local o = assert(totable.parse(doc))
+					assert.same(test.totable, o)
+				end)
+
+
+				it("iterator", function()
+					local o = assert(totable.parse(string.gmatch(doc, ".-%>")))
+					assert.same(test.totable, o)
+				end)
+
+
+				it("file", function()
+					local fn = assert(require("pl.path").tmpname())
+					finally(function()
+						os.remove(fn)
+					end)
+					assert(require("pl.utils").writefile(fn, doc))
+					local o = assert(totable.parse(assert(io.open(fn))))
+					assert.same(test.totable, o)
+				end)
+
+
+				it("table", function()
+					local t = {}
+					for i = 1, #doc, 10 do
+						t[#t+1] = doc:sub(i, i+9)
+					end
+					local o = assert(totable.parse(t))
+					assert.same(test.totable, o)
+				end)
+
 			end)
 
 
+
 			it("clean", function()
-				local result = assert(totable.parse(input))
+				local result = assert(totable.parse(doc))
 				totable.clean(result)
 				assert.same(test.clean, result)
 			end)
 
 
 			it("torecord", function()
-				local result = assert(totable.parse(input))
+				local result = assert(totable.parse(doc))
 				totable.torecord(totable.clean(result))
 				assert.same(test.torecord, result)
 			end)

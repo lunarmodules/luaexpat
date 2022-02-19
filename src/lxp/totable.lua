@@ -6,7 +6,7 @@ local lxp = require "lxp"
 
 local table = require"table"
 local tinsert, tremove = table.insert, table.remove
-local assert, pairs, tostring, type = assert, pairs, tostring, type
+local assert, tostring, type = assert, tostring, type
 
 -- auxiliary functions -------------------------------------------------------
 local function starttag (p, tag, attr)
@@ -50,11 +50,28 @@ local function parse (o)
 		stack = {{}},
 	}
 	local p = lxp.new(c)
-	if type(o) == "string" then
+	local to = type(o)
+	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)
 		if not status then return nil, err, line, col, pos end
 	else
-		for l in pairs(o) do
+		local iter
+		if to == "table" then
+			local i = 0
+			iter = function() i = i + 1; return o[i] end
+		elseif to == "function" then
+			iter = o
+		elseif to == "userdata" and o.read then
+			iter = function()
+				local l = o:read()
+				if l then
+					return l.."\n"
+				end
+			end
+		else
+			error ("Bad argument #1 to parse: expected a string, a table, a function or a file, but got "..to, 2)
+		end
+		for l in iter do
 			local status, err, line, col, pos = p:parse(l)
 			if not status then return nil, err, line, col, pos end
 		end
