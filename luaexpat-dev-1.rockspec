@@ -46,5 +46,5 @@ build = {
 		["lxp.lom"] = "src/lxp/lom.lua",
 		["lxp.totable"] = "src/lxp/totable.lua",
 	},
-	copy_directories = { "docs", "tests" }
+	copy_directories = { "docs", "spec" }
 }
