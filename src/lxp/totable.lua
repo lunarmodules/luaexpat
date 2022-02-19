@@ -80,6 +80,7 @@ local function compact (t) -- remove empty entries
 			t[i] = nil
 		end
 	end
+	return t
 end
 
 local function clean (t) -- remove empty strings
@@ -92,7 +93,7 @@ local function clean (t) -- remove empty strings
 			t[i] = false
 		end
 	end
-	compact (t)
+	return compact (t)
 end
 
 local function torecord (t) -- move 1-value subtables to table entries
@@ -107,7 +108,7 @@ local function torecord (t) -- move 1-value subtables to table entries
 			end
 		end
 	end
-	compact (t)
+	return compact (t)
 end
 
 return {
