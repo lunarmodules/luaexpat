@@ -54,9 +54,9 @@ static int reporterror (lxp_userdata *xpu) {
   XML_Parser p = xpu->parser;
   lua_pushnil(L);
   lua_pushstring(L, XML_ErrorString(XML_GetErrorCode(p)));
-  lua_pushnumber(L, XML_GetCurrentLineNumber(p));
-  lua_pushnumber(L, XML_GetCurrentColumnNumber(p) + 1);
-  lua_pushnumber(L, XML_GetCurrentByteIndex(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentLineNumber(p));
+  lua_pushinteger(L, XML_GetCurrentColumnNumber(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentByteIndex(p) + 1);
   return 5;
 }
 
@@ -204,7 +204,7 @@ static void f_StartElement (void *ud, const char *name, const char **attrs) {
   lua_newtable(L);
   while (*attrs) {
     if (i <= lastspec) {
-      lua_pushnumber(L, i++);
+      lua_pushinteger(L, i++);
       lua_pushstring(L, *attrs);
       lua_settable(L, -3);
     }
@@ -522,9 +522,9 @@ static int lxp_close (lua_State *L) {
 static int lxp_pos (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   XML_Parser p = xpu->parser;
-  lua_pushnumber(L, XML_GetCurrentLineNumber(p));
-  lua_pushnumber(L, XML_GetCurrentColumnNumber(p) + 1);
-  lua_pushnumber(L, XML_GetCurrentByteIndex(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentLineNumber(p));
+  lua_pushinteger(L, XML_GetCurrentColumnNumber(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentByteIndex(p) + 1);
   return 3;
 }
 
