@@ -97,7 +97,7 @@ necessary), the sequence of <em>key</em>s could be placed at the
 <h3>Functions</h3>
 
 <dl class="reference">
-	<dt><strong>lom.parse(string|function|table|file)</strong></dt>
+	<dt><strong>lom.parse(string|function|table|file[, opts])</strong></dt>
 	<dd>Parses the input into the LOM table format and returns it. The input can be;
 		<ul>
 			<li><em>string</em>: the entire XML document as a string</li>
@@ -108,6 +108,12 @@ necessary), the sequence of <em>key</em>s could be placed at the
 			<li><em>file</em>: an open file handle from which the XML document will
 			be read line-by-line, using <code>read()</code>. <strong>Note</strong>:
 			the file will not be closed when done.</li>
+		</ul>
+		The second parameter <em>opts</em> is an options table that supports the
+		following options;
+		<ul>
+			<li><em>separator (string)</em>: the namespace separator character to use, setting
+			this will enable namespace aware parsing.</li>
 		</ul>
 		Upon parsing errors it will return <code>nil, err, line, col, pos</code>.
 	</dd>
