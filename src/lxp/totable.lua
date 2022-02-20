@@ -130,7 +130,7 @@ end
 
 return {
 	clean = clean,
-	compact = compact,
+	compact = compact, -- TODO: internal only, should not be exported
 	parse = parse,
 	torecord = torecord,
 }

@@ -23,7 +23,7 @@ local tests = {
 	{
 		input = [[<qwerty q1="q1" q2="q2">
 	<q2>some text</q2>
-	<asdf>some text</asdf>
+	<asdf attr="value">some text</asdf>
 </qwerty>]],
 		totable = {
 			[0] = "qwerty",
@@ -38,6 +38,7 @@ local tests = {
 			{
 				[0] = "asdf",
 				"some text",
+				attr = "value",
 			},
 			"\n",
 		},
@@ -52,6 +53,7 @@ local tests = {
 			{
 				[0] = "asdf",
 				"some text",
+				attr = "value",
 			},
 		},
 		torecord = {
@@ -62,7 +64,7 @@ local tests = {
 				[0] = "q2", -- does not overwrite the existing q2 entry
 				"some text",
 			},
-			asdf = "some text", -- entry moved to a field
+			asdf = "some text", -- entry moved to a field, NOTE: attribute dropped!!
 		},
 	},
 	{
