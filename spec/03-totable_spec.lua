@@ -1,23 +1,44 @@
 local tests = {
 	{
-		input = [[<abc a1="A1" a2="A2">inside tag `abc'</abc>]],
+		input = [[<abc a1="A1" a2="A2">inside tag 'abc'</abc>]],
 		totable = {
 			[0] = "abc",
 			a1 = "A1",
 			a2 = "A2",
-			"inside tag `abc'",
+			"inside tag 'abc'",
 		},
 		clean = { -- no whitesapce, no changes
 			[0] = "abc",
 			a1 = "A1",
 			a2 = "A2",
-			"inside tag `abc'",
+			"inside tag 'abc'",
 		},
 		torecord = { -- no single entries, no changes
 			[0] = "abc",
 			a1 = "A1",
 			a2 = "A2",
-			"inside tag `abc'",
+			"inside tag 'abc'",
+		},
+	},
+	{
+		input = [[<expat:abc xmlns:expat="http://expat" a1="A1" expat:a2="A2">inside tag 'abc'</expat:abc>]],
+		totable = {
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
+		},
+		clean = { -- no whitesapce, no changes
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
+		},
+		torecord = { -- no single entries, no changes
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
 		},
 	},
 	{
@@ -302,13 +323,13 @@ describe("totable:", function()
 			describe("parse:", function()
 
 				it("string (all at once)", function()
-					local o = assert(totable.parse(doc))
+					local o = assert(totable.parse(doc, { separator = "?" }))
 					assert.same(test.totable, o)
 				end)
 
 
 				it("iterator", function()
-					local o = assert(totable.parse(string.gmatch(doc, ".-%>")))
+					local o = assert(totable.parse(string.gmatch(doc, ".-%>"), { separator = "?" }))
 					assert.same(test.totable, o)
 				end)
 
@@ -319,7 +340,7 @@ describe("totable:", function()
 						os.remove(fn)
 					end)
 					assert(require("pl.utils").writefile(fn, doc))
-					local o = assert(totable.parse(assert(io.open(fn))))
+					local o = assert(totable.parse(assert(io.open(fn)), { separator = "?" }))
 					assert.same(test.totable, o)
 				end)
 
@@ -329,7 +350,7 @@ describe("totable:", function()
 					for i = 1, #doc, 10 do
 						t[#t+1] = doc:sub(i, i+9)
 					end
-					local o = assert(totable.parse(t))
+					local o = assert(totable.parse(t, { separator = "?" }))
 					assert.same(test.totable, o)
 				end)
 
@@ -338,14 +359,14 @@ describe("totable:", function()
 
 
 			it("clean", function()
-				local result = assert(totable.parse(doc))
+				local result = assert(totable.parse(doc, { separator = "?" }))
 				totable.clean(result)
 				assert.same(test.clean, result)
 			end)
 
 
 			it("torecord", function()
-				local result = assert(totable.parse(doc))
+				local result = assert(totable.parse(doc, { separator = "?" }))
 				totable.torecord(totable.clean(result))
 				assert.same(test.torecord, result)
 			end)

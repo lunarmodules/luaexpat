@@ -13,11 +13,11 @@ describe("Lua object model:", function()
 
 		local tests = {
 			{
-				root_elem = [[<abc a1="A1" a2="A2">inside tag `abc'</abc>]],
+				root_elem = [[<abc a1="A1" a2="A2">inside tag 'abc'</abc>]],
 				lom = {
 					tag="abc",
 					attr = { "a1", "a2", a1 = "A1", a2 = "A2", },
-					"inside tag `abc'",
+					"inside tag 'abc'",
 				},
 			},
 			{
@@ -100,6 +100,14 @@ describe("Lua object model:", function()
 					},
 				},
 			},
+			{
+				root_elem = [[<expat:abc xmlns:expat="http://expat" a1="A1" expat:a2="A2">inside tag 'abc'</expat:abc>]],
+				lom = { -- namespace parsing, assumes separator to be set to "?"
+					tag="http://expat?abc",
+					attr = { "a1", "http://expat?a2", a1 = "A1", ["http://expat?a2"] = "A2", },
+					"inside tag 'abc'",
+				},
+			},
 		}
 
 
@@ -110,14 +118,14 @@ describe("Lua object model:", function()
 
 
 			it("test case " .. i .. ": string (all at once)", function()
-				local o = assert(lom.parse(doc))
-				assert.same(o, test.lom)
+				local o = assert(lom.parse(doc, { separator = "?"}))
+				assert.same(test.lom, o)
 			end)
 
 
 			it("test case " .. i .. ": iterator", function()
-				local o = assert(lom.parse(string.gmatch(doc, ".-%>")))
-				assert.same(o, test.lom)
+				local o = assert(lom.parse(string.gmatch(doc, ".-%>"), { separator = "?"}))
+				assert.same(test.lom, o)
 			end)
 
 
@@ -127,8 +135,8 @@ describe("Lua object model:", function()
 					os.remove(fn)
 				end)
 				assert(require("pl.utils").writefile(fn, doc))
-				local o = assert(lom.parse(assert(io.open(fn))))
-				assert.same(o, test.lom)
+				local o = assert(lom.parse(assert(io.open(fn)), { separator = "?"}))
+				assert.same(test.lom, o)
 			end)
 
 
@@ -137,8 +145,8 @@ describe("Lua object model:", function()
 				for i = 1, #doc, 10 do
 					t[#t+1] = doc:sub(i, i+9)
 				end
-				local o = assert(lom.parse(t))
-				assert.same(o, test.lom)
+				local o = assert(lom.parse(t, { separator = "?"}))
+				assert.same(test.lom, o)
 			end)
 
 		end

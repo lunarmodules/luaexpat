@@ -41,7 +41,8 @@ local function text (p, txt)
 end
 
 -- main function -------------------------------------------------------------
-local function parse (o)
+local function parse (o, opts)
+	local opts = opts or {}
 	local c = {
 		StartElement = starttag,
 		EndElement = endtag,
@@ -49,7 +50,7 @@ local function parse (o)
 		_nonstrict = true,
 		stack = {{}},
 	}
-	local p = lxp.new(c)
+	local p = lxp.new(c, opts.separator)
 	local to = type(o)
 	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)
