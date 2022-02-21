@@ -122,6 +122,20 @@ table contains references to the callback functions which are
 responsible for the handling of the document parts. The parser will
 assume no behaviour for any undeclared callbacks.</p>
 
+<h4>Finishing parsing</h4>
+
+<p>Since the parser is a streaming parser, handling chunks of input at a time,
+the following input will parse just fine (despite the unbalanced tags);</p>
+<pre class="example">
+    &lt;one&gt;&lt;two&gt;some text&lt;/two&gt;
+</pre>
+<p>Only when making the final call (with no data) to the <em>parse</em> method, the
+document will be closed and an error will be returned;</p>
+<pre class="example">
+    assert(lxp.parse())
+</pre>
+<p>Closing the document is important to ensure the document being complete and valid.</p>
+
 <h4>Constructor</h4>
 
 <dl class="reference">
