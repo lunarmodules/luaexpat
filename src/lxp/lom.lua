@@ -1,7 +1,5 @@
 -- See Copyright Notice in license.html
 
-local lxp = require "lxp"
-
 local table = require"table"
 local tinsert, tremove = table.insert, table.remove
 local assert, type = assert, type
@@ -42,7 +40,15 @@ local function parse (o, opts)
 		_nonstrict = true,
 		stack = {{}}
 	}
-	local p = lxp.new(c, opts.separator)
+
+	local p
+	if opts.threat then
+		c.threat = opts.threat
+		p = require("lxp.threat").new(c, opts.separator)
+	else
+		p = require("lxp").new(c, opts.separator)
+	end
+
 	local to = type(o)
 	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)

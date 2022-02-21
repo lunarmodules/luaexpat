@@ -125,11 +125,9 @@ function threat.new(callbacks, separator, merge_character_data)
 					return threat_error("comment too long")
 				end
 
-				if checks.maxChildren then
-					context.children = context.children + 1
-					if context.children > checks.maxChildren then
-						return threat_error("too many children")
-					end
+				context.children = context.children + 1
+				if checks.maxChildren and context.children > checks.maxChildren then
+					return threat_error("too many children")
 				end
 
 				context.charcount = nil -- reset text-length counter
@@ -192,11 +190,9 @@ function threat.new(callbacks, separator, merge_character_data)
 					return threat_error("processing instruction data too long")
 				end
 
-				if checks.maxChildren then
-					context.children = context.children + 1
-					if context.children > checks.maxChildren then
-						return threat_error("too many children")
-					end
+				context.children = context.children + 1
+				if checks.maxChildren and context.children > checks.maxChildren then
+					return threat_error("too many children")
 				end
 
 				context.charcount = nil -- reset text-length counter
@@ -216,24 +212,20 @@ function threat.new(callbacks, separator, merge_character_data)
 
 		elseif key == "StartElement" then
 			ncb = function(parser, elementName, attributes)
-				if checks.maxChildren then
-					context.children = context.children + 1
-					if context.children > checks.maxChildren then
-						return threat_error("too many children")
-					end
+				context.children = context.children + 1
+				if checks.maxChildren and context.children > checks.maxChildren then
+					return threat_error("too many children")
 				end
 
 				context.charcount = nil -- reset text-length counter
 
-				if checks.depth then
-					context = { children = 0 }
-					local d = #stack
-					if d > checks.depth then
-						return threat_error("structure is too deep")
-					end
-					d = d + 1
-					stack[d] = context
+				context = { children = 0 }
+				local d = #stack
+				if checks.depth and d > checks.depth then
+					return threat_error("structure is too deep")
 				end
+				d = d + 1
+				stack[d] = context
 
 				if separator then
 					-- handle namespaces
@@ -290,15 +282,13 @@ function threat.new(callbacks, separator, merge_character_data)
 
 		elseif key == "StartNamespaceDecl" then
 			ncb = function(parser, namespaceName, namespaceUri)
-				if checks.maxNamespaces then
-					-- we're storing in the current context, which is one level up
-					-- from the tag they are intended for. Because the namespace callbacks
-					-- happen before the element callbacks. But for our purposes
-					-- this is fine.
-					context.ns = (context.ns or 0) + 1
-					if context.ns > checks.maxNamespaces then
-						return threat_error("too many namespaces")
-					end
+				-- we're storing in the current context, which is one level up
+				-- from the tag they are intended for. Because the namespace callbacks
+				-- happen before the element callbacks. But for our purposes
+				-- this is fine.
+				context.ns = (context.ns or 0) + 1
+				if checks.maxNamespaces and context.ns > checks.maxNamespaces then
+					return threat_error("too many namespaces")
 				end
 
 				if checks.prefix and #(namespaceName or "") > checks.prefix then

@@ -100,10 +100,10 @@ To protect against this make sure to set the maximum buffer size (option <em>buf
 	<li><strong>depth</strong> max depth of tags, child elements like Text or Comments are
 	not counted as another level.</li>
 	<li><strong>maxChildren</strong> max number of children (Element, Text, Comment,
-	ProcessingInstruction, CDATASection). <em>NOTE</em>: adjacent text/CDATA
+	ProcessingInstruction, CDATASection).<br/><em>NOTE</em>: adjacent text/CDATA
 	sections are counted as 1 (so text-cdata-text-cdata is 1 child).</li>
 	<li><strong>maxAttributes</strong> max number of attributes (including default ones).
-	<em>NOTE</em>: if not parsing namespaces, then the namespaces will be counted
+	<br/><em>NOTE</em>: if not parsing namespaces, then the namespaces will be counted
 	as attributes.</li>
 	<li><strong>maxNamespaces</strong> max number of namespaces defined on a tag</li>
 </ul>
@@ -112,7 +112,7 @@ To protect against this make sure to set the maximum buffer size (option <em>buf
 	<li><strong>document</strong> size of entire document</li>
 	<li><strong>buffer</strong> size of the unparsed buffer (see below)</li>
 	<li><strong>comment</strong> size of comment</li>
-	<li><strong>localName</strong> size of localname applies to tags and attributes. <em>NOTE:</em>
+	<li><strong>localName</strong> size of localname applies to tags and attributes.<br/><em>NOTE:</em>
 	If not parsing namespaces, this limit will count against the full name (prefix + localName)</li>
 	<li><strong>prefix</strong> size of prefix, applies to tags and attributes</li>
 	<li><strong>namespaceUri</strong> size of namespace uri</li>
