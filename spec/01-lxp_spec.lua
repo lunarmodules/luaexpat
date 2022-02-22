@@ -180,6 +180,27 @@ describe("lxp:", function()
 		end)
 
 
+		it("handles XML declaration", function()
+			local p = test_parser { "XmlDecl" }
+			assert(p:parse('<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>'))
+			assert.same({
+				{ "XmlDecl", "1.0", "ISO-8859-1", true },
+			}, cbdata)
+
+			local p = test_parser { "XmlDecl" }
+			assert(p:parse('<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>'))
+			assert.same({
+				{ "XmlDecl", "1.0", "ISO-8859-1", false },
+			}, cbdata)
+
+			local p = test_parser { "XmlDecl" }
+			assert(p:parse('<?xml version="1.0" encoding="ISO-8859-1"?>'))
+			assert.same({
+				{ "XmlDecl", "1.0", "ISO-8859-1", nil },
+			}, cbdata)
+		end)
+
+
 		it("handles start/end tags", function()
 			local p = test_parser { "StartElement", "EndElement" }
 			assert(p:parse(preamble))

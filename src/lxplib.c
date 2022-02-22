@@ -343,8 +343,12 @@ static void f_XmlDecl (void *ud, const XML_Char *version,
   if (getHandle(xpu, XmlDeclKey) == 0) return;  /* no handle */
   lua_pushstring(xpu->L, version);
   lua_pushstring(xpu->L, encoding);
-  lua_pushboolean(xpu->L, standalone);
-  docall(xpu, 3, 0);
+  if (standalone >= 0) {
+    lua_pushboolean(xpu->L, standalone);
+    docall(xpu, 3, 0);
+  } else {
+    docall(xpu, 2, 0);
+  }
 }
 /* }====================================================== */
 
