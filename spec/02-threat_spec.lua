@@ -27,6 +27,9 @@ describe("threats", function()
 		text = 20,				-- text inside tags (counted over all adjacent text/CDATA)
 		PITarget = 20,			-- size of processing instruction target in bytes
 		PIData = 20,			-- size of processing instruction data in bytes
+		entityName = 20,		-- size of entity name in EntityDecl in bytes
+		entity = 20,			-- size of entity value in EntityDecl in bytes
+		entityProperty = 20,	-- size of systemId, publicId, or notationName in EntityDecl in bytes
 	}
 
 	local threat_no_ns = {} -- same as above, except without namespaces
@@ -36,13 +39,17 @@ describe("threats", function()
 	threat_no_ns.namespaceUri = nil
 
 	local callbacks_def = { -- all callbacks and their parameters
+		AttlistDecl = { "parser", "elementName", "attrName", "attrType", "default", "required" },
 		CharacterData = { "parser", "data" },
 		Comment = { "parser", "data" },
 		Default = { "parser", "data" },
 		--DefaultExpand = { "parser", "data" }, -- overrides "Default" if set
+		ElementDecl = { "parser", "name", "type", "quantifier", "children" },
 		EndCdataSection = { "parser" },
+		EndDoctypeDecl = { "parser" },
 		EndElement = { "parser", "elementName" },
 		EndNamespaceDecl = { "parser", "namespaceName" },
+		EntityDecl = { "parser", "entityName", "is_parameter", "value", "base", "systemId", "publicId", "notationName" },
 		ExternalEntityRef = { "parser", "subparser", "base", "systemId", "publicId" },
 		NotStandalone = { "parser" },
 		NotationDecl = { "parser", "notationName", "base", "systemId", "publicId" },
@@ -51,7 +58,7 @@ describe("threats", function()
 		StartDoctypeDecl = { "parser", "name", "sysid", "pubid", "has_internal_subset" },
 		StartElement = { "parser", "elementName", "attributes" },
 		StartNamespaceDecl = { "parser", "namespaceName", "namespaceUri" },
-		UnparsedEntityDecl = { "parser", "entityName", "base", "systemId", "publicId", "notationName" },
+		--UnparsedEntityDecl = { "parser", "entityName", "base", "systemId", "publicId", "notationName" },  -- superseeded by EntityDecl
 		XmlDecl = { "parser", "version", "encoding", "standalone" },
 	}
 
@@ -497,7 +504,7 @@ describe("threats", function()
 
 	describe("localName size", function()
 
-		describe("tag, plain", function()
+		describe("element, plain", function()
 
 			it("accepts on the edge", function()
 				local doc = "<roota12345abcde12345>txt</roota12345abcde12345>"
@@ -515,7 +522,7 @@ describe("threats", function()
 			it("blocks over the edge", function()
 				local doc = "<roota12345abcde12345x>txt</roota12345abcde12345x>"
 				local r, err = p:parse(doc)
-				assert.equal("tag localName too long", err)
+				assert.equal("element localName too long", err)
 				assert.falsy(r)
 			end)
 
@@ -523,7 +530,7 @@ describe("threats", function()
 
 
 
-		describe("tag, namespaced with separator", function()
+		describe("element, namespaced with separator", function()
 
 			it("accepts on the edge", function()
 				local doc = [[<cool:roota12345abcde12345 xmlns:cool="http://cool">txt</cool:roota12345abcde12345>]]
@@ -543,7 +550,7 @@ describe("threats", function()
 			it("blocks over the edge", function()
 				local doc = [[<cool:roota12345abcde12345x xmlns:cool="http://cool">txt</cool:roota12345abcde12345x>]]
 				local r, err = p:parse(doc)
-				assert.equal("tag localName too long", err)
+				assert.equal("element localName too long", err)
 				assert.falsy(r)
 			end)
 
@@ -551,7 +558,7 @@ describe("threats", function()
 
 
 
-		describe("tag, namespaced without separator", function()
+		describe("element, namespaced without separator", function()
 
 			it("accepts on the edge", function()
 				callbacks.threat = threat_no_ns
@@ -572,7 +579,7 @@ describe("threats", function()
 				p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
 				local doc = "<spacex:root12345abcde></spacex:root12345abcde>"
 				local r, err = p:parse(doc)
-				assert.equal("tag name too long", err)
+				assert.equal("element name too long", err)
 				assert.falsy(r)
 			end)
 
@@ -667,6 +674,418 @@ describe("threats", function()
 				local r, err = p:parse(doc)
 				assert.equal("attribute name too long", err)
 				assert.falsy(r)
+			end)
+
+		end)
+
+
+
+		describe("ElementDecl", function()
+
+			local old_doc1, old_buffer1, old_doc2, old_buffer2
+			setup(function()
+				old_doc1 = threat.document
+				old_buffer1 = threat.buffer
+				old_doc2 = threat_no_ns.document
+				old_buffer2 = threat_no_ns.buffer
+				threat.document = nil  -- disable document checks with these tests
+				threat.buffer = nil
+				threat_no_ns.document = nil  -- disable document checks with these tests
+				threat_no_ns.buffer = nil
+			end)
+
+			teardown(function()
+				threat.document = old_doc1 -- reenable old setting
+				threat.buffer = old_buffer1
+				threat_no_ns.document = old_doc2 -- reenable old setting
+				threat_no_ns.buffer = old_buffer2
+			end)
+
+			local xmldoc = function(elemPref, elemName, childPref, childName)
+				local elem = (elemPref and (elemPref .. ":") or "")..elemName
+				local attr = (childPref and (childPref .. ":") or "")..childName
+				return string.format(d[[
+					<?xml version="1.0" standalone="yes"?>
+					<!DOCTYPE lab_group [
+						<!ELEMENT %s (id|%s)>
+					]>
+				]], elem, attr)
+			end
+
+
+			describe("plain", function()
+
+				it("accepts on the edge", function()
+					local doc = xmldoc(nil, "student345abcde12345", nil, "surname345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "ElementDecl", "student345abcde12345", "CHOICE", nil, {
+							{ name = "id", type = "NAME" },
+							{ name = "surname345abcde12345", type = "NAME" },
+						} },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks over the edge", function()
+					local doc = xmldoc(nil, "student345abcde12345x", nil, "surname345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl localName too long", err)
+					assert.falsy(r)
+				end)
+
+
+				it("blocks child over the edge", function()
+					local doc = xmldoc(nil, "student345abcde12345", nil, "surname345abcde12345x")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl localName too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("namespaced with separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "student345abcde12345", "prefix2345abcde12345", "surname345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "ElementDecl", "prefix2345abcde12345:student345abcde12345", "CHOICE", nil, {
+							{ name = "id", type = "NAME" },
+							{ name = "prefix2345abcde12345:surname345abcde12345", type = "NAME" },
+						} },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "student345abcde12345x", "prefix2345abcde12345", "surname345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl localName too long", err)
+					assert.falsy(r)
+				end)
+
+
+				it("blocks localName child over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "student345abcde12345x", "prefix2345abcde12345", "surname345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl localName too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("namespaced without separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc("prefix2345", "student34", "prefix2345", "surname34")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "ElementDecl", "prefix2345:student34", "CHOICE", nil, {
+							{ name = "id", type = "NAME" },
+							{ name = "prefix2345:surname34", type = "NAME" },
+						} },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName+prefix over the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc("prefix2345", "student345", "prefix2345", "surname34")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl name too long", err)
+					assert.falsy(r)
+				end)
+
+
+				it("blocks localName+prefix child over the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc("prefix2345", "student34", "prefix2345", "surname345")
+					local r, err = p:parse(doc)
+					assert.equal("elementDecl name too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+		end)
+
+
+
+		describe("AttlistDecl", function()
+
+			local old_doc1, old_buffer1, old_doc2, old_buffer2
+			setup(function()
+				old_doc1 = threat.document
+				old_buffer1 = threat.buffer
+				old_doc2 = threat_no_ns.document
+				old_buffer2 = threat_no_ns.buffer
+				threat.document = nil  -- disable document checks with these tests
+				threat.buffer = nil
+				threat_no_ns.document = nil  -- disable document checks with these tests
+				threat_no_ns.buffer = nil
+			end)
+
+			teardown(function()
+				threat.document = old_doc1 -- reenable old setting
+				threat.buffer = old_buffer1
+				threat_no_ns.document = old_doc2 -- reenable old setting
+				threat_no_ns.buffer = old_buffer2
+			end)
+
+			local xmldoc = function(ePref, eName, aPref, aName)
+				local elem = (ePref and (ePref .. ":") or "")..eName
+				local attr = (aPref and (aPref .. ":") or "")..aName
+				return string.format(d[[
+					<?xml version="1.0" standalone="yes"?>
+					<!DOCTYPE lab_group [
+						<!ATTLIST %s %s CDATA #FIXED "www.example.com">
+					]>
+				]], elem, attr)
+			end
+
+
+			describe("element, plain", function()
+
+				it("accepts on the edge", function()
+					local doc = xmldoc(nil, "roota12345abcde12345", nil, "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "roota12345abcde12345", "attra12345abcde12345", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks over the edge", function()
+					local doc = xmldoc(nil, "roota12345abcde12345x", nil, "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("element localName too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("element, namespaced with separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "roota12345abcde12345", "prefix2345abcde12345", "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "prefix2345abcde12345:roota12345abcde12345", "prefix2345abcde12345:attra12345abcde12345", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "roota12345abcde12345x", "prefix2345abcde12345", "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("element localName too long", err)
+					assert.falsy(r)
+				end)
+
+
+				it("blocks prefix over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345x", "roota12345abcde12345", "prefix2345abcde12345", "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("element prefix too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("element, namespaced without separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc(nil, "prefix2345:roota1234", nil, "prefix2345:attra1234")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "prefix2345:roota1234", "prefix2345:attra1234", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName+prefix over the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc(nil, "prefix2345:roota1234x", nil, "prefix2345:attra1234")
+					local r, err = p:parse(doc)
+					assert.equal("elementName too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("attribute, plain", function()
+
+				it("accepts on the edge", function()
+					local doc = xmldoc(nil, "roota12345abcde12345", nil, "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "roota12345abcde12345", "attra12345abcde12345", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks over the edge", function()
+					local doc = xmldoc(nil, "roota12345abcde12345", nil, "attra12345abcde12345x")
+					local r, err = p:parse(doc)
+					assert.equal("attribute localName too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("attribute, namespaced with separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "roota12345abcde12345", "prefix2345abcde12345", "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "prefix2345abcde12345:roota12345abcde12345", "prefix2345abcde12345:attra12345abcde12345", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "roota12345abcde12345", "prefix2345abcde12345", "attra12345abcde12345x")
+					local r, err = p:parse(doc)
+					assert.equal("attribute localName too long", err)
+					assert.falsy(r)
+				end)
+
+
+				it("blocks prefix over the edge", function()
+					local doc = xmldoc("prefix2345abcde12345", "roota12345abcde12345", "prefix2345abcde12345x", "attra12345abcde12345")
+					local r, err = p:parse(doc)
+					assert.equal("attribute prefix too long", err)
+					assert.falsy(r)
+				end)
+
+			end)
+
+
+
+			describe("attribute, namespaced without separator", function()
+
+				it("accepts localName+prefix on the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc(nil, "prefix2345:roota1234", nil, "prefix2345:attra1234")
+					local r, err = p:parse(doc)
+					assert.equal(nil, err)
+					assert.truthy(r)
+					assert.same({
+						{ "XmlDecl", "1.0", nil, true },
+						{ "Default", "\n" },
+						{ "StartDoctypeDecl", "lab_group", nil, nil, true },
+						{ "Default", "\n\t" },
+						{ "AttlistDecl", "prefix2345:roota1234", "prefix2345:attra1234", "CDATA", "www.example.com", true },
+						{ "Default", "\n" },
+						{ "EndDoctypeDecl" },
+						{ "Default", "\n\n" },
+					}, cbdata)
+				end)
+
+
+				it("blocks localName+prefix over the edge", function()
+					callbacks.threat = threat_no_ns
+					p = require("lxp.threat").new(callbacks, nil, false) -- new parser without separator
+					local doc = xmldoc(nil, "prefix2345:roota1234", nil, "prefix2345:attra1234x")
+					local r, err = p:parse(doc)
+					assert.equal("attributeName too long", err)
+					assert.falsy(r)
+				end)
+
 			end)
 
 		end)
@@ -940,6 +1359,162 @@ describe("threats", function()
 			local r, err = p:parse("<root><?target instructions345abcdex?></root>")
 			assert.equal("processing instruction data too long", err)
 			assert.falsy(r)
+		end)
+
+	end)
+
+
+
+	describe("entity", function()
+
+		local old_doc1, old_buffer1, old_doc2, old_buffer2
+		setup(function()
+			old_doc1 = threat.document
+			old_buffer1 = threat.buffer
+			old_doc2 = threat_no_ns.document
+			old_buffer2 = threat_no_ns.buffer
+			threat.document = nil  -- disable document checks with these tests
+			threat.buffer = nil
+			threat_no_ns.document = nil  -- disable document checks with these tests
+			threat_no_ns.buffer = nil
+		end)
+
+		teardown(function()
+			threat.document = old_doc1 -- reenable old setting
+			threat.buffer = old_buffer1
+			threat_no_ns.document = old_doc2 -- reenable old setting
+			threat_no_ns.buffer = old_buffer2
+		end)
+
+		local xmldoc = function(entity)
+			return string.format(d[[
+				<?xml version="1.0" standalone="yes"?>
+				<!DOCTYPE greeting [
+					%s
+				]>
+			]], entity)
+		end
+
+
+		describe("entityName size", function()
+
+			it("accepts on the edge", function()
+				local doc = xmldoc([[<!ENTITY xuxu5abcde12345abcde "is this a xuxu?12345">]])
+				local r, err = p:parse(doc)
+				assert.equal(nil, err)
+				assert.truthy(r)
+				assert.same({
+					{ "XmlDecl", "1.0", nil, true },
+					{ "Default", "\n" },
+					{ "StartDoctypeDecl", "greeting", nil, nil, true },
+					{ "Default", "\n\t" },
+					{ "EntityDecl", "xuxu5abcde12345abcde", false, "is this a xuxu?12345" },
+					{ "Default", "\n" },
+					{ "EndDoctypeDecl" },
+					{ "Default", "\n\n" },
+				}, cbdata)
+			end)
+
+
+			it("blocks over the edge", function()
+				local doc = xmldoc([[<!ENTITY xuxu5abcde12345abcdeX "is this a xuxu?12345">]])
+				local r, err = p:parse(doc)
+				assert.equal("entityName too long", err)
+				assert.falsy(r)
+			end)
+
+		end)
+
+
+
+		describe("entity size", function()
+
+			it("accepts on the edge", function()
+				local doc = xmldoc([[<!ENTITY xuxu5abcde12345abcde "is this a xuxu?12345">]])
+				local r, err = p:parse(doc)
+				assert.equal(nil, err)
+				assert.truthy(r)
+				assert.same({
+					{ "XmlDecl", "1.0", nil, true },
+					{ "Default", "\n" },
+					{ "StartDoctypeDecl", "greeting", nil, nil, true },
+					{ "Default", "\n\t" },
+					{ "EntityDecl", "xuxu5abcde12345abcde", false, "is this a xuxu?12345" },
+					{ "Default", "\n" },
+					{ "EndDoctypeDecl" },
+					{ "Default", "\n\n" },
+				}, cbdata)
+			end)
+
+
+			it("blocks over the edge", function()
+				local doc = xmldoc([[<!ENTITY xuxu5abcde12345abcde "is this a xuxu?12345x">]])
+				local r, err = p:parse(doc)
+				assert.equal("entity value too long", err)
+				assert.falsy(r)
+			end)
+
+		end)
+
+
+
+		describe("entityProperty size", function()
+
+			it("accepts on the edge", function()
+				p:setbase("/base")
+				local doc = xmldoc(d[[
+					<!ENTITY test1 SYSTEM "uri_e12345abcde12345" NDATA txt45abcde1234512345>
+				    <!ENTITY test2 PUBLIC "public_id5abcde12345" "uri_e12345abcde12345" NDATA txt45abcde1234512345>]])
+				local r, err = p:parse(doc)
+				assert.equal(nil, err)
+				assert.truthy(r)
+				assert.same({
+					{ "XmlDecl", "1.0", nil, true },
+					{ "Default", "\n" },
+					{ "StartDoctypeDecl", "greeting", nil, nil, true },
+					{ "Default", "\n\t" },
+					{ "EntityDecl", "test1", false, nil, "/base", "uri_e12345abcde12345", nil, "txt45abcde1234512345" },
+					{ "Default", "\n   " },
+					{ "EntityDecl", "test2", false, nil, "/base", "uri_e12345abcde12345", "public_id5abcde12345", "txt45abcde1234512345" },
+					{ "Default", "\n\n" },
+					{ "EndDoctypeDecl" },
+					{ "Default", "\n\n" },
+				}, cbdata)
+			end)
+
+
+			it("blocks systemId over the edge", function()
+				p:setbase("/base")
+				local doc = xmldoc(d[[
+					<!ENTITY test1 SYSTEM "uri_e12345abcde12345x" NDATA txt45abcde1234512345>
+				    <!ENTITY test2 PUBLIC "public_id5abcde12345" "uri_e12345abcde12345" NDATA txt45abcde1234512345>]])
+				local r, err = p:parse(doc)
+				assert.equal("systemId too long", err)
+				assert.falsy(r)
+			end)
+
+
+			it("blocks publicId over the edge", function()
+				p:setbase("/base")
+				local doc = xmldoc(d[[
+					<!ENTITY test1 SYSTEM "uri_e12345abcde12345" NDATA txt45abcde1234512345>
+				    <!ENTITY test2 PUBLIC "public_id5abcde12345x" "uri_e12345abcde12345" NDATA txt45abcde1234512345>]])
+				local r, err = p:parse(doc)
+				assert.equal("publicId too long", err)
+				assert.falsy(r)
+			end)
+
+
+			it("blocks notationName over the edge", function()
+				p:setbase("/base")
+				local doc = xmldoc(d[[
+					<!ENTITY test1 SYSTEM "uri_e12345abcde12345" NDATA txt45abcde1234512345x>
+				    <!ENTITY test2 PUBLIC "public_id5abcde12345" "uri_e12345abcde12345" NDATA txt45abcde1234512345>]])
+				local r, err = p:parse(doc)
+				assert.equal("notationName too long", err)
+				assert.falsy(r)
+			end)
+
 		end)
 
 	end)

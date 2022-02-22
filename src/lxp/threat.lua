@@ -14,6 +14,37 @@ local lxp = require "lxp"
 
 local threat = {}
 
+local defaults = {
+	depth = 50,				-- depth of tags
+
+	-- counts
+	maxChildren = 100,		-- max number of children (DOM2;  Element, Text, Comment,
+							-- ProcessingInstruction, CDATASection). NOTE: adjacent text/CDATA
+							-- sections are counted as 1 (so text-cdata-text-cdata is 1 child).
+	maxAttributes = 100,	-- max number of attributes (including default ones), if not parsing
+							-- namespaces, then the namespaces will be counted as attributes.
+	maxNamespaces = 20,		-- max number of namespaces defined on a tag
+
+	-- size limits
+	document = 10*1024*1024,	-- 10 mb; size of entire document in bytes
+	buffer = 1024*1024,			-- 1 mb; size of the unparsed buffer
+	comment = 1024,				-- 1 kb; size of comment in bytes
+	localName = 1024,			-- 1 kb; size of localname (or full name if not parsing namespaces) in bytes,
+								-- applies to tags and attributes
+	prefix = 1024,				-- 1 kb; size of prefix in bytes (only if parsing namespaces), applies to
+								-- tags and attributes
+	namespaceUri = 1024,		-- 1 kb; size of namespace uri in bytes (only if parsing namespaces)
+	attribute = 1024*1024,		-- 1 mb; size of attribute value in bytes
+	text = 1024*1024,			-- 1 mb; text inside tags (counted over all adjacent text/CDATA)
+	PITarget = 1024,			-- 1 kb; size of processing instruction target in bytes
+	PIData = 1024,				-- 1 kb; size of processing instruction data in bytes
+	entityName = 1024,			-- 1 kb; size of entity name in EntityDecl in bytes
+	entity = 1024,				-- 1 kb; size of entity value in EntityDecl in bytes
+	entityProperty = 1024,		-- 1 kb; size of systemId, publicId, or notationName in EntityDecl in bytes
+}
+
+
+
 --- Creates a parser that implements xml threat protection.
 function threat.new(callbacks, separator, merge_character_data)
 	assert(type(callbacks) == "table", "expected arg #1 to be a table with callbacks")
@@ -23,14 +54,24 @@ function threat.new(callbacks, separator, merge_character_data)
 		assert(separator ~= nil, "expected separator to be set when checking maxNamespaces, prefix, and/or namespaceUri")
 	end
 
-	do
-		-- add missing callbacks so we get all checks
+	-- apply defaults
+	for setting, value in pairs(defaults) do
+		checks[setting] = checks[setting] or value
+	end
+	if separator == nil then
+		checks.maxNamespaces = nil
+		checks.prefix = nil
+		checks.namespaceUri = nil
+	end
+
+	do -- add missing callbacks so we get all checks
 		local callbacks_def = {
 			"CharacterData",
 			"Comment",
 			--"Default",
 			--"DefaultExpand",
 			"EndCdataSection",
+			"EndDoctypeDecl",
 			"EndElement",
 			"EndNamespaceDecl",
 			"ExternalEntityRef",
@@ -41,7 +82,11 @@ function threat.new(callbacks, separator, merge_character_data)
 			"StartDoctypeDecl",
 			"StartElement",
 			"StartNamespaceDecl",
-			"UnparsedEntityDecl",
+			--"UnparsedEntityDecl", -- superseeded by EntityDecl
+			"EntityDecl",
+			"AttlistDecl",
+			"ElementDecl",
+			"SkippedEntity",
 			"XmlDecl",
 		}
 		local nop = function() end
@@ -237,11 +282,11 @@ function threat.new(callbacks, separator, merge_character_data)
 						l = #elementName -- not namespaced, entire key
 					end
 					if checks.localName and l > checks.localName then
-						return threat_error("tag localName too long")
+						return threat_error("element localName too long")
 					end
 				else
 					if checks.localName and #elementName > checks.localName then
-						return threat_error("tag name too long")
+						return threat_error("element name too long")
 					end
 				end
 
@@ -302,14 +347,149 @@ function threat.new(callbacks, separator, merge_character_data)
 				return callbacks.StartNamespaceDecl(p, namespaceName, namespaceUri)
 			end
 
-		elseif key == "UnparsedEntityDecl" then  -- TODO: implement
-			ncb = function(parser, entityName, base, systemId, publicId, notationName)
-				return callbacks.UnparsedEntityDecl(p, entityName, base, systemId, publicId, notationName)
+		-- elseif key == "UnparsedEntityDecl" then  -- TODO: implement?? superseeded by "EntityDecl"
+		-- 	ncb = function(parser, entityName, base, systemId, publicId, notationName)
+		-- 		return callbacks.UnparsedEntityDecl(p, entityName, base, systemId, publicId, notationName)
+		-- 	end
+
+		elseif key == "EndDoctypeDecl" then
+			ncb = function(parser)
+				return callbacks.EndDoctypeDecl(p)
 			end
 
 		elseif key == "XmlDecl" then
 			ncb = function(parser, version, encoding, standalone)
 				return callbacks.XmlDecl(p, version, encoding, standalone)
+			end
+
+		elseif key == "EntityDecl" then
+			ncb = function(parser, entityName, is_parameter, value, base, systemId, publicId, notationName)
+				if checks.entityName and checks.entityName < #entityName then
+					return threat_error("entityName too long")
+				end
+				if checks.entity and value and checks.entity < #value then
+					return threat_error("entity value too long")
+				end
+				if checks.entityProperty then
+					if systemId and checks.entityProperty < #systemId then
+						return threat_error("systemId too long")
+					end
+					if publicId and checks.entityProperty < #publicId then
+						return threat_error("publicId too long")
+					end
+					if notationName and checks.entityProperty < #notationName then
+						return threat_error("notationName too long")
+					end
+				end
+				return callbacks.EntityDecl(p, entityName, is_parameter, value, base, systemId, publicId, notationName)
+			end
+
+		elseif key == "AttlistDecl" then
+			ncb = function(parser, elementName, attrName, attrType, default, required)
+				if separator then
+					local ePrefix, eName, aPrefix, aName
+					if checks.prefix or checks.localName then
+						-- namespace based parsing, check against localName+prefix
+						local colon = elementName:find(":", 1, true) or 0
+						ePrefix = elementName:sub(1, colon-1)
+						eName = elementName:sub(colon+1, -1)
+
+						colon = attrName:find(":", 1, true) or 0
+						aPrefix = attrName:sub(1, colon-1)
+						aName = attrName:sub(colon+1, -1)
+
+						if checks.localName then
+							if checks.localName < #eName then
+								return threat_error("element localName too long")
+							end
+							if checks.localName < #aName then
+								return threat_error("attribute localName too long")
+							end
+						end
+						if checks.prefix then
+							if checks.prefix < #ePrefix then
+								return threat_error("element prefix too long")
+							end
+							if checks.prefix < #aPrefix then
+								return threat_error("attribute prefix too long")
+							end
+						end
+					end
+				else
+
+					-- no namespace parsing, check against localName
+					if checks.localName then
+						if checks.localName < #elementName then
+							return threat_error("elementName too long")
+						end
+						if checks.localName < #attrName then
+							return threat_error("attributeName too long")
+						end
+					end
+				end
+
+				if default and checks.attribute then
+					if checks.attribute < #default then
+						return threat_error("attribute default too long")
+					end
+				end
+
+				return callbacks.AttlistDecl(p, elementName, attrName, attrType, default, required)
+			end
+
+		elseif key == "ElementDecl" then
+			ncb = function(parser, name, type, quantifier, children)
+				if name or children then
+					local checkName
+					if separator then
+						if checks.localName or checks.prefix then
+							checkName = function(name)
+								local colon = name:find(":", 1, true) or 0
+								local ePrefix = name:sub(1, colon-1)
+								local eName = name:sub(colon+1, -1)
+								if checks.localName and checks.localName < #eName then
+									return threat_error("elementDecl localName too long")
+								end
+								if checks.prefix and checks.prefix < #ePrefix then
+									return threat_error("elementDecl prefix too long")
+								end
+								return true
+							end
+						end
+					elseif checks.localName then
+						checkName = function(name)
+							if checks.localName < #name then
+								return threat_error("elementDecl name too long")
+							end
+							return true
+						end
+					end
+
+					if checkName then
+						local function checkChild(child)
+							if child.name and not checkName(child.name) then
+								return
+							end
+							for _, subchild in ipairs(child.children or {}) do
+								if not checkChild(subchild) then
+									return
+								end
+							end
+							return true
+						end
+
+						if not checkChild { name = name, children = children } then
+							return
+						end
+					end
+				end
+
+				return callbacks.ElementDecl(p, name, type, quantifier, children)
+			end
+
+		elseif key == "SkippedEntity" then
+			ncb = function(parser, name, isParameter)
+				return callbacks.SkippedEntity(p, name, isParameter)
 			end
 
 		elseif key == "threat" then
