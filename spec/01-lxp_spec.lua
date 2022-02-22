@@ -94,6 +94,13 @@ describe("lxp:", function()
 		end)
 
 
+		it("setbase, setencoding, close, and parse return parser upon success", function()
+			assert.has.no.error(function()
+				lxp.new({}):setbase("/base"):setencoding("ISO-8859-1"):parse("<root/>"):parse():close():close()
+			end)
+		end)
+
+
 		-- test based on https://github.com/tomasguisasola/luaexpat/issues/2
 		it("reloads module if dropped", function()
 			package.loaded.lxp = nil

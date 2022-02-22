@@ -159,7 +159,7 @@ document will be closed and an error will be returned;</p>
 	<dt><strong>parser:close()</strong></dt>
 	<dd>Closes the parser, freeing all memory used by it. A call to
 	parser:close() without a previous call to parser:parse() could
-	result in an error.</dd>
+	result in an error. Returns the parser object on success.</dd>
 
 	<dt><strong>parser:getbase()</strong></dt>
 	<dd>Returns the base for resolving relative URIs.</dd>
@@ -172,11 +172,17 @@ document will be closed and an error will be returned;</p>
 	part (or perhaps all) of the document. When called without
 	arguments the document is closed (but the parser still has to be
 	closed).<br/>
-	The function returns a non nil value when the parser has been
-	succesfull, and when the parser finds an error it returns five
-	results: nil, <em>msg</em>, <em>line</em>, <em>col</em>, and
+	The function returns the parser object when the parser has been
+	succesfull. If the parser finds an error it returns five
+	results: <em>nil</em>, <em>msg</em>, <em>line</em>, <em>col</em>, and
 	<em>pos</em>, which are the error message, the line number,
-	column number and absolute position of the error in the XML document.</dd>
+	column number and absolute position of the error in the XML document.
+<pre class="example">
+local cb = {}    -- table with callbacks
+local doc = "&lt;root&gt;xml doc&lt;/root&gt;"
+lxp.new(cb):setencoding("UTF-8"):parse(doc):parse():close()
+</pre>
+	</dd>
 
 	<dt><strong>parser:pos()</strong></dt>
 	<dd>Returns three results: the current parsing line, column, and
@@ -186,16 +192,16 @@ document will be closed and an error will be returned;</p>
 	<dd>Return the number of bytes of input corresponding to the current
 	event. This function can only be called inside a handler, in other
 	contexts it will return 0. Do not use inside a CharacterData handler
-	unless CharacterData merging has been disabled (see lxp.new).</dd>
+	unless CharacterData merging has been disabled (see <em>lxp.new</em>).</dd>
 
 	<dt><strong>parser:setbase(base)</strong></dt>
 	<dd>Sets the <em>base</em> to be used for resolving relative URIs in
-	system identifiers.</dd>
+	system identifiers. Returns the parser object on success.</dd>
 
 	<dt><strong>parser:setencoding(encoding)</strong></dt>
 	<dd>Set the encoding to be used by the parser. There are four
 	built-in encodings, passed as strings: "US-ASCII",
-	"UTF-8", "UTF-16", and "ISO-8859-1".</dd>
+	"UTF-8", "UTF-16", and "ISO-8859-1". Returns the parser object on success.</dd>
 
 	<dt><strong>parser:stop()</strong></dt>
 	<dd>Abort the parser and prevent it from parsing any further
