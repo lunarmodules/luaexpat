@@ -449,7 +449,8 @@ static int setbase (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   if (XML_SetBase(xpu->parser, luaL_checkstring(L, 2)) == 0)
     luaL_error(L, "no memory to store base");
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 
@@ -484,7 +485,7 @@ static int parse_aux (lua_State *L, lxp_userdata *xpu, const char *s,
   }
   if (s == NULL) xpu->state = XPSfinished;
   if (status) {
-    lua_pushboolean(L, 1);
+    lua_settop(L, 1);  /* return parser userdata on success */
     return 1;
   }
   else { /* error */
@@ -503,7 +504,7 @@ static int lxp_parse (lua_State *L) {
       lua_pushliteral(L, "cannot parse - document is finished");
       return 2;
     } else {
-      lua_pushboolean(L, 1);
+      lua_settop(L, 1);
       return 1;
     }
   }
@@ -520,7 +521,8 @@ static int lxp_close (lua_State *L) {
   lxpclose(L, xpu);
   if (status > 1) luaL_error(L, "error closing parser: %s",
                                 lua_tostring(L, -status+1));
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 
@@ -539,7 +541,8 @@ static int lxp_setencoding (lua_State *L) {
   const char *encoding = luaL_checkstring(L, 2);
   luaL_argcheck(L, xpu->state == XPSpre, 1, "invalid parser state");
   XML_SetEncoding(xpu->parser, encoding);
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 static int lxp_stop (lua_State *L) {
