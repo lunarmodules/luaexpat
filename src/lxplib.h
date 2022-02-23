@@ -20,6 +20,7 @@
 #define ProcessingInstructionKey	"ProcessingInstruction"
 #define UnparsedEntityDeclKey		"UnparsedEntityDecl"
 #define EntityDeclKey			"EntityDecl"
+#define AttlistDeclKey			"AttlistDecl"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
 

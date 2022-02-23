@@ -365,6 +365,80 @@ describe("lxp:", function()
 		end)
 
 
+		it("handles attribute list declarations", function()
+			local p = test_parser { "AttlistDecl" }
+			p:setbase("/base")
+			assert(p:parse(preamble))
+			assert(p:parse[[<hihi explanation="test-unparsed"/>]])
+			p:close()
+
+			assert.same({
+				{ "AttlistDecl", "to", "method", "CDATA", "POST", true },
+				{ "AttlistDecl", "hihi", "explanation", "ENTITY", nil, true },
+			}, cbdata)
+		end)
+
+
+		it("handles attribute list declarations; multiple attributes", function()
+			local p = test_parser { "AttlistDecl" }
+			p:setbase("/base")
+			assert(p:parse(d[[
+				<?xml version="1.0" standalone="yes"?>
+				<!DOCTYPE lab_group [
+					<!ELEMENT student_name (#PCDATA)>
+					<!ATTLIST student_name student_no ID #REQUIRED>
+					<!ATTLIST student_name tutor_1 IDREF #IMPLIED>
+					<!ATTLIST student_name tutor_2 IDREF #IMPLIED>
+				]>
+				<root/>
+			]]))
+			p:close()
+
+			assert.same({
+				{ "AttlistDecl", "student_name", "student_no", "ID", nil, true },
+				{ "AttlistDecl", "student_name", "tutor_1", "IDREF", nil, false },
+				{ "AttlistDecl", "student_name", "tutor_2", "IDREF", nil, false },
+			}, cbdata)
+		end)
+
+
+		it("handles attribute list declarations with namespaces", function()
+			local p = test_parser({
+				"AttlistDecl",
+				"StartNamespaceDecl", "EndNamespaceDecl",
+				"StartElement", "EndElement"
+			}, "?")
+			p:setbase("/base")
+			assert(p:parse(d[[
+				<?xml version="1.0" ?>
+				<!DOCTYPE kbs:myRoot [
+				 <!ELEMENT kbs:myRoot (kbs:child1, kbs:child2+) >
+				 <!ATTLIST kbs:myRoot
+					xmlns:kbs CDATA #FIXED "http://www.example.com/">
+				 <!ELEMENT kbs:child1 (#PCDATA) >
+				 <!ELEMENT kbs:child2 (#PCDATA) >
+				]>
+				<kbs:myRoot>
+				 <kbs:child1>valid</kbs:child1>
+				 <kbs:child2>doc</kbs:child2>
+				</kbs:myRoot>
+			]])) -- example from: https://www.informit.com/articles/article.aspx?p=31837&seqNum=6
+			p:close()
+
+			assert.same({
+				{ 'AttlistDecl', 'kbs:myRoot', 'xmlns:kbs', 'CDATA', 'http://www.example.com/', true },
+				{ 'StartNamespaceDecl', 'kbs', 'http://www.example.com/' },
+				{ 'StartElement', 'http://www.example.com/?myRoot', {} },
+				{ 'StartElement', 'http://www.example.com/?child1', {} },
+				{ 'EndElement', 'http://www.example.com/?child1' },
+				{ 'StartElement', 'http://www.example.com/?child2', {} },
+				{ 'EndElement', 'http://www.example.com/?child2' },
+				{ 'EndElement', 'http://www.example.com/?myRoot' },
+				{ 'EndNamespaceDecl', 'kbs' },
+			}, cbdata)
+		end)
+
+
 		it("handles namespace declarations", function()
 			local p = test_parser({
 				"StartNamespaceDecl", "EndNamespaceDecl",
