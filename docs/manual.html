@@ -188,6 +188,13 @@ document will be closed and an error will be returned;</p>
 	contexts it will return 0. Do not use inside a CharacterData handler
 	unless CharacterData merging has been disabled (see lxp.new).</dd>
 
+	<dt><strong>parser:returnnstriplet(bool)</strong></dt>
+	<dd>Instructs the parser to return namespaces in triplet (<em>true</em>), or
+	only duo (<em>false</em>).
+	Setting this must be done before calling <em>parse</em>, and will only
+	have effect if the parser was created with a <em>separator</em>.
+	Returns the parser object.</dd>
+
 	<dt><strong>parser:setbase(base)</strong></dt>
 	<dd>Sets the <em>base</em> to be used for resolving relative URIs in
 	system identifiers.</dd>

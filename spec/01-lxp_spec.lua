@@ -320,24 +320,86 @@ describe("lxp:", function()
 
 		it("handles namespace declarations", function()
 			local p = test_parser({
-					"StartNamespaceDecl", "EndNamespaceDecl",
-					"StartElement", "EndElement"
-				}, "?")
+				"StartNamespaceDecl", "EndNamespaceDecl",
+				"StartElement", "EndElement"
+			}, "?")
 
 			assert(p:parse(d[[
-				<x xmlns:space='a/namespace'>
-				  <space:a/>
-				</x>
+				<root>
+					<x xmlns:space='a/namespace'>
+						defined namespace on x
+						<space:a attr1="1" space:attr2="2">named namespace for a</space:a>
+					</x>
+					<y xmlns='b/namespace'>
+						default namespace on y
+						<b>inherited namespace for b</b>
+					</y>
+				</root>
 			]]))
 			p:close()
 
 			assert.same({
+				{ "StartElement", "root", {} },
 				{ "StartNamespaceDecl", "space", "a/namespace" },
 				{ "StartElement", "x", {} },
-				{ "StartElement", "a/namespace?a", {} },
+				{ "StartElement", "a/namespace?a", {
+					"attr1", "a/namespace?attr2",
+					["attr1"] = "1",
+					["a/namespace?attr2"] = "2",
+				} },
 				{ "EndElement", "a/namespace?a" },
 				{ "EndElement", "x" },
 				{ "EndNamespaceDecl", "space" },
+				{ "StartNamespaceDecl", nil, "b/namespace" },
+				{ "StartElement", "b/namespace?y", {} },
+				{ "StartElement", "b/namespace?b", {} },
+				{ "EndElement", "b/namespace?b" },
+				{ "EndElement", "b/namespace?y" },
+				{ "EndNamespaceDecl", nil },
+				{ "EndElement", "root" },
+			}, cbdata)
+		end)
+
+
+		it("handles namespace triplet", function()
+			local p = test_parser({
+					"StartNamespaceDecl", "EndNamespaceDecl",
+					"StartElement", "EndElement"
+				}, "?")
+
+			assert(p:returnnstriplet(true):parse(d[[
+				<root>
+					<x xmlns:space='a/namespace'>
+						defined namespace on x
+						<space:a attr1="1" space:attr2="2">named namespace for a</space:a>
+					</x>
+					<y xmlns='b/namespace'>
+						default namespace on y
+						<b>inherited namespace for b</b>
+					</y>
+				</root>
+			]]))
+			p:close()
+
+			assert.same({
+				{ "StartElement", "root", {} },
+				{ "StartNamespaceDecl", "space", "a/namespace" },
+				{ "StartElement", "x", {} },
+				{ "StartElement", "a/namespace?a?space", {
+					"attr1", "a/namespace?attr2?space",
+					["attr1"] = "1",
+					["a/namespace?attr2?space"] = "2",
+				} },
+				{ "EndElement", "a/namespace?a?space" },
+				{ "EndElement", "x" },
+				{ "EndNamespaceDecl", "space" },
+				{ "StartNamespaceDecl", nil, "b/namespace" },
+				{ "StartElement", "b/namespace?y", {} },
+				{ "StartElement", "b/namespace?b", {} },
+				{ "EndElement", "b/namespace?b" },
+				{ "EndElement", "b/namespace?y" },
+				{ "EndNamespaceDecl", nil },
+				{ "EndElement", "root" },
 			}, cbdata)
 		end)
 
