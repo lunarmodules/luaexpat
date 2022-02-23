@@ -323,6 +323,31 @@ static void f_UnparsedEntityDecl (void *ud, const char *entityName,
   docall(xpu, 5, 0);
 }
 
+static void f_EntityDecl (void *ud, const char *entityName,
+                                    int is_parameter_entity,
+                                    const char *value,
+                                    int value_length,
+                                    const char *base,
+                                    const char *systemId,
+                                    const char *publicId,
+                                    const char *notationName) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, EntityDeclKey) == 0) return;  /* no handle */
+  lua_pushstring(L, entityName);
+  lua_pushboolean(L, is_parameter_entity);
+  if (value == NULL) {
+    lua_pushnil(L);
+  } else {
+    lua_pushlstring(L, value, value_length);
+  }
+  lua_pushstring(L, base);
+  lua_pushstring(L, systemId);
+  lua_pushstring(L, publicId);
+  lua_pushstring(L, notationName);
+  docall(xpu, 7, 0);
+}
+
 static void f_StartDoctypeDecl (void *ud, const XML_Char *doctypeName,
                                           const XML_Char *sysid,
                                           const XML_Char *pubid,
@@ -370,7 +395,7 @@ static void checkcallbacks (lua_State *L) {
     "Default", "DefaultExpand", "StartElement", "EndElement",
     "ExternalEntityRef", "StartNamespaceDecl", "EndNamespaceDecl",
     "NotationDecl", "NotStandalone", "ProcessingInstruction",
-    "UnparsedEntityDecl", "StartDoctypeDecl", "XmlDecl", NULL};
+    "UnparsedEntityDecl", "EntityDecl", "StartDoctypeDecl", "XmlDecl", NULL};
   if (hasfield(L, "_nonstrict")) return;
   lua_pushnil(L);
   while (lua_next(L, 1)) {
@@ -425,6 +450,8 @@ static int lxp_make_parser (lua_State *L) {
     XML_SetProcessingInstructionHandler(p, f_ProcessingInstruction);
   if (hasfield(L, UnparsedEntityDeclKey))
     XML_SetUnparsedEntityDeclHandler(p, f_UnparsedEntityDecl);
+  if (hasfield(L, EntityDeclKey))
+    XML_SetEntityDeclHandler(p, f_EntityDecl);
   if (hasfield(L, StartDoctypeDeclKey))
     XML_SetStartDoctypeDeclHandler(p, f_StartDoctypeDecl);
   if (hasfield(L, XmlDeclKey))

@@ -19,6 +19,7 @@
 #define NotStandaloneKey		"NotStandalone"
 #define ProcessingInstructionKey	"ProcessingInstruction"
 #define UnparsedEntityDeclKey		"UnparsedEntityDecl"
+#define EntityDeclKey			"EntityDecl"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
 

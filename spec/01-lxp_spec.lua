@@ -20,6 +20,8 @@ local preamble = [[
   <!ATTLIST hihi
       explanation ENTITY #REQUIRED>
 
+  <!ENTITY % myParameterEntity "myElement | myElement2 | myElement3">
+  <!ENTITY % emptyValue "">
 ]>
 ]]
 
@@ -342,6 +344,23 @@ describe("lxp:", function()
 			assert.same({
 				{ "NotationDecl", "TXT", "/base", "txt" },
 				{ "UnparsedEntityDecl", "test-unparsed", "/base", "unparsed.txt", nil, "txt" },
+			}, cbdata)
+		end)
+
+
+		it("handles entity declarations", function()
+			local p = test_parser { "EntityDecl" }
+			p:setbase("/base")
+			assert(p:parse(preamble))
+			assert(p:parse[[<hihi explanation="test-unparsed"/>]])
+			p:close()
+
+			assert.same({
+				{ "EntityDecl", "xuxu", false, "is this a xuxu?", "/base" },
+				{ "EntityDecl", "test-entity", false, nil, "/base", "entity1.xml" },
+				{ "EntityDecl", "test-unparsed", false, nil, "/base", "unparsed.txt", nil, "txt" },
+				{ "EntityDecl", "myParameterEntity", true, "myElement | myElement2 | myElement3", "/base" },
+				{ "EntityDecl", "emptyValue", true, "", "/base" },
 			}, cbdata)
 		end)
 

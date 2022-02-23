@@ -235,7 +235,7 @@ will be called.</p>
 callbacks:<br />
 <em>CharacterData</em>, <em>Comment</em>,
 <em>Default</em>, <em>DefaultExpand</em>, <em>EndCdataSection</em>,
-<em>EndElement</em>, <em>EndNamespaceDecl</em>,
+<em>EndElement</em>, <em>EndNamespaceDecl</em>, <em>EntityDecl</em>,
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
 <em>NotationDecl</em>, <em>ProcessingInstruction</em>,
 <em>StartCdataSection</em>, <em>StartElement</em>,
@@ -296,6 +296,23 @@ for more than one parser for example.</p>
 	namespace with <em>namespaceName</em>. The handling of the end
 	namespace is done after the handling of the end tag for the element
 	the namespace is associated with.</dd>
+
+	<dt><strong>callbacks.EntityDecl = function(parser, entityName, is_parameter, value, base, systemId, publicId, notationName)</strong></dt>
+	<dd>This is called for entity declarations. The <em>is_parameter</em>
+	argument will be <em>true</em> if the entity is a parameter entity,
+	<em>false</em> otherwise.
+
+	For internal entities (&lt;!ENTITY foo "bar"&gt;), <em>value</em> will
+	be a string and <em>systemId</em>, <em>publicID</em>, and <em>notationName</em>
+	will be <em>nil</em>.
+	The <em>value</em> string can be <em>nil</em>, as well as an empty string, which is
+	a valid value.
+
+	For external entities, <em>value</em> will be <em>nil</em> and <em>systemId</em> will be
+	a string. The <em>publicId</em> argument will be <em>nil</em> unless a public
+	identifier was provided. The <em>notationName</em> argument will have a
+	string value only for unparsed entity declarations.
+	</dd>
 
 	<dt><strong>callbacks.ExternalEntityRef = function(parser, subparser, base, systemId, publicId)</strong></dt>
 	<dd>Called when the <em>parser</em> detects an external entity
@@ -381,7 +398,7 @@ for more than one parser for example.</p>
 	in that start tag.</dd>
 
 	<dt><strong>callbacks.UnparsedEntityDecl = function(parser, entityName, base, systemId, publicId, notationName)</strong></dt>
-	<dd>Called when the <em>parser</em> receives declarations of
+	<dd><strong>Obsolete: use EntityDecl instead</strong>. Called when the <em>parser</em> receives declarations of
 	unparsed entities. These are entity declarations that have a
 	notation (NDATA) field.<br/>
 	As an example, in the chunk
