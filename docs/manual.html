@@ -237,7 +237,7 @@ callbacks:<br />
 <em>Default</em>, <em>DefaultExpand</em>, <em>EndCdataSection</em>,
 <em>EndElement</em>, <em>EndNamespaceDecl</em>, <em>EntityDecl</em>,
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
-<em>NotationDecl</em>, <em>ProcessingInstruction</em>,
+<em>NotationDecl</em>, <em>ProcessingInstruction</em>, <em>SkippedEntity</em>,
 <em>StartCdataSection</em>, <em>StartElement</em>,
 <em>StartNamespaceDecl</em>, <em>UnparsedEntityDecl</em>,
 <em>XmlDecl</em> and <em>StartDoctypeDecl</em>.</p>
@@ -362,6 +362,17 @@ for more than one parser for example.</p>
 	processing instruction. The <em>data</em> is the rest of the
 	characters in it after skipping all whitespace after the initial
 	word.</dd>
+
+	<dt><strong>callbacks.SkippedEntity = function(parser, name, isParameter)</strong></dt>
+	<dd>This is called in two situations.
+	One; An entity reference is encountered for which no declaration has been
+	read *and* this is not an error.
+	Two; An internal entity reference is read, but not expanded, because
+	the <em>Default</em> handler has been called.
+	<strong>Note:</strong> skipped parameter entities in declarations and skipped
+	general entities in attribute values cannot be reported, because the event
+	would be out of sync with the reporting of the declarations or attribute values.
+	</dd>
 
 	<dt><strong>callbacks.StartCdataSection = function(parser)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the begining of an XML

@@ -21,6 +21,7 @@
 #define UnparsedEntityDeclKey		"UnparsedEntityDecl"
 #define EntityDeclKey			"EntityDecl"
 #define AttlistDeclKey			"AttlistDecl"
+#define SkippedEntityKey		"SkippedEntity"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
 
