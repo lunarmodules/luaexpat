@@ -509,6 +509,33 @@ describe("lxp:", function()
 		end)
 
 
+		it("skipped entity handler", function()
+			local p = test_parser {
+				"Default",
+				"SkippedEntity", "CharacterData",
+				"StartElement", "EndElement",
+			}
+			-- skip default handler during preamble
+			local cb = p:getcallbacks().Default
+			p:getcallbacks().Default = function() end
+			assert(p:parse(preamble))
+			p:getcallbacks().Default = cb
+			assert(p:parse[[<root attr1="attr: &xuxu;">body start: &xuxu; :body end</root>]])
+			p:close()
+
+			assert.same({
+				{ 'StartElement', 'root', {
+					 'attr1',
+					 attr1 = 'attr: is this a xuxu?',  -- expanded
+				} },
+				{ 'CharacterData', 'body start: ' },
+				{ 'SkippedEntity', 'xuxu', false },    -- reported
+				{ 'CharacterData', ' :body end' },
+				{ 'EndElement', 'root' },
+			}, cbdata)
+		end)
+
+
 		it("handles ExternalEntity", function()
 			local entities = { ["entity1.xml"] = "<hi/>" }
 			local p = test_parser {
