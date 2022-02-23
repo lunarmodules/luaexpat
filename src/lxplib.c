@@ -540,6 +540,14 @@ static int lxp_pos (lua_State *L) {
 }
 
 
+static int lxp_setreturnnstriplet (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  luaL_argcheck(L, xpu->state == XPSpre, 1, "invalid parser state");
+  XML_SetReturnNSTriplet(xpu->parser, lua_toboolean(L, 2));
+  lua_settop(L, 1);
+  return 1;
+}
+
 static int lxp_setencoding (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   const char *encoding = luaL_checkstring(L, 2);
@@ -576,6 +584,7 @@ static const struct luaL_Reg lxp_meths[] = {
   {"getcallbacks", getcallbacks},
   {"getbase", getbase},
   {"setbase", setbase},
+  {"returnnstriplet", lxp_setreturnnstriplet},
   {"stop", lxp_stop},
   {NULL, NULL}
 };
