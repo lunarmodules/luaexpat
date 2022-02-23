@@ -227,7 +227,7 @@ will be called.</p>
 
 <p>The callbacks table indices are named after the equivalent Expat
 callbacks:<br />
-<em>CharacterData</em>, <em>Comment</em>,
+<em>AttlistDecl</em>, <em>CharacterData</em>, <em>Comment</em>,
 <em>Default</em>, <em>DefaultExpand</em>, <em>EndCdataSection</em>,
 <em>EndElement</em>, <em>EndNamespaceDecl</em>, <em>EntityDecl</em>,
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
@@ -253,6 +253,17 @@ calling parser itself, thus allowing the same functions to be used
 for more than one parser for example.</p>
 
 <dl class="reference">
+	<dt><strong>callbacks.AttlistDecl = function(parser, elementName, attrName, attrType, default, required)</strong></dt>
+	<dd>The Attlist declaration handler is called for each attribute. So
+	a single Attlist declaration with multiple attributes declared will
+	generate multiple calls to this handler. The <em>default</em> parameter
+	may be <em>nil</em> in the case of the "#IMPLIED" or "#REQUIRED"
+	keyword. The <em>required</em> parameter will be <em>true</em> and the
+	<em>default</em> value will be <em>nil</em> in the case of "#REQUIRED".
+	If <em>required</em> is <em>true</em> and <em>default</em> is non-<em>nil</em>,
+	then this is a "#FIXED" default.
+	</dd>
+
 	<dt><strong>callbacks.CharacterData = function(parser, string)</strong></dt>
 	<dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.
 	Note that LuaExpat automatically combines multiple CharacterData events
