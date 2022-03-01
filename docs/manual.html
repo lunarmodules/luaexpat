@@ -228,7 +228,8 @@ will be called.</p>
 <p>The callbacks table indices are named after the equivalent Expat
 callbacks:<br />
 <em>AttlistDecl</em>, <em>CharacterData</em>, <em>Comment</em>,
-<em>Default</em>, <em>DefaultExpand</em>, <em>EndCdataSection</em>,
+<em>Default</em>, <em>DefaultExpand</em>,
+<em>ElementDecl</em>, <em>EndCdataSection</em>,
 <em>EndElement</em>, <em>EndNamespaceDecl</em>, <em>EntityDecl</em>,
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
 <em>NotationDecl</em>, <em>ProcessingInstruction</em>, <em>SkippedEntity</em>,
@@ -287,6 +288,17 @@ for more than one parser for example.</p>
 	corresponding to any characters in the document which wouldn't
 	otherwise be handled. Using this handler doesn't affect expansion
 	of internal entity references.</dd>
+
+	<dt><strong>callbacks.ElementDecl = function(parser, name, type, quantifier, children)</strong></dt>
+	<dd>Called when the <em>parser</em> detects an Element declaration in the DTD.
+	The <em>type</em> parameter will be any of; <em>"EMPTY", "ANY", "MIXED", "NAME",
+	"CHOICE",</em> or <em>"SEQUENCE"</em>.
+	The <em>quantifier</em> parameter will be any of <em>"?", "*", "+",</em> or
+	<em>nil</em>. The array <em>children</em> can be <em>nil</em> if there are no
+	children. The child elements in the array will be objects with the following fields;
+	<em>name, type, quantifier</em>, and <em>children</em>. Those fields will have
+	the same values as the similarly named parameters for this call.
+	</dd>
 
 	<dt><strong>callbacks.EndCdataSection = function(parser)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the end of a CDATA

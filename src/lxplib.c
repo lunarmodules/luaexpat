@@ -348,6 +348,95 @@ static void f_EntityDecl (void *ud, const char *entityName,
   docall(xpu, 7, 0);
 }
 
+static void PushElementDeclType(lua_State *L, XML_Content *model) {
+  switch(model->type) {
+    case XML_CTYPE_EMPTY:
+      return lua_pushliteral(L, "EMPTY");
+    case XML_CTYPE_ANY:
+      return lua_pushliteral(L, "ANY");
+    case XML_CTYPE_MIXED:
+      return lua_pushliteral(L, "MIXED");
+    case XML_CTYPE_NAME:
+      return lua_pushliteral(L, "NAME");
+    case XML_CTYPE_CHOICE:
+      return lua_pushliteral(L, "CHOICE");
+    case XML_CTYPE_SEQ:
+      return lua_pushliteral(L, "SEQUENCE");
+    default:
+      /* safe guard, should not happen */
+      return lua_pushliteral(L, "unknown");
+  }
+}
+
+static int PushElementDeclQuant(lua_State *L, XML_Content *model) {
+  switch(model->quant) {
+    case XML_CQUANT_NONE:
+      return 0;
+    case XML_CQUANT_OPT:
+      lua_pushliteral(L, "?");
+      return 1;
+    case XML_CQUANT_REP:
+      lua_pushliteral(L, "*");
+      return 1;
+    case XML_CQUANT_PLUS:
+      lua_pushliteral(L, "+");
+      return 1;
+    default:
+      /* safe guard, should not happen */
+      lua_pushliteral(L, "unknown");
+      return 1;
+  }
+}
+
+static void PushElementDeclChildren(lua_State *L, XML_Content *model) {
+  lua_checkstack(L, 4);
+  int i;
+  XML_Content *child;
+  for (i = 0; i < model->numchildren; i++) {
+    child = model->children+i;
+    lua_newtable(L);
+    PushElementDeclType(L, child);
+    lua_setfield(L, -2, "type");
+    if (PushElementDeclQuant(L, child) != 0) {
+      lua_setfield(L, -2, "quantifier");
+    }
+    if (child->name != NULL) {
+      lua_pushstring(L, child->name);
+      lua_setfield(L, -2, "name");
+    }
+    if (child->numchildren > 0 ) {
+      lua_newtable(L);
+      PushElementDeclChildren(L, child);
+      lua_setfield(L, -2, "children");
+    }
+
+    lua_rawseti(L, -2, i+1);
+  }
+}
+
+static void f_ElementDecl (void *ud, const char *name, XML_Content *model) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, ElementDeclKey) == 0) {   /* no handle */
+    XML_FreeContentModel(xpu->parser, model);
+    return;
+  }
+  lua_pushstring(L, name);
+  PushElementDeclType(L, model);
+  if (PushElementDeclQuant(L, model) == 0) {
+    lua_pushnil(L);
+  }
+  if (model->numchildren == 0) {
+    XML_FreeContentModel(xpu->parser, model);
+    docall(xpu, 3, 0);
+  } else {
+    lua_newtable(L);
+    PushElementDeclChildren(L, model);
+    XML_FreeContentModel(xpu->parser, model);
+    docall(xpu, 4, 0);
+  }
+}
+
 static void f_AttlistDecl (void *ud, const char *elName,
                                      const char *attName,
                                      const char *attType,
@@ -418,7 +507,7 @@ static void checkcallbacks (lua_State *L) {
     "ExternalEntityRef", "StartNamespaceDecl", "EndNamespaceDecl",
     "NotationDecl", "NotStandalone", "ProcessingInstruction",
     "UnparsedEntityDecl", "EntityDecl", "StartDoctypeDecl", "XmlDecl",
-    "AttlistDecl", "SkippedEntity", NULL};
+    "AttlistDecl", "SkippedEntity", "ElementDecl", NULL};
   if (hasfield(L, "_nonstrict")) return;
   lua_pushnil(L);
   while (lua_next(L, 1)) {
@@ -483,6 +572,8 @@ static int lxp_make_parser (lua_State *L) {
     XML_SetStartDoctypeDeclHandler(p, f_StartDoctypeDecl);
   if (hasfield(L, XmlDeclKey))
     XML_SetXmlDeclHandler(p, f_XmlDecl);
+  if (hasfield(L, ElementDeclKey))
+    XML_SetElementDeclHandler(p, f_ElementDecl);
   return 1;
 }
 

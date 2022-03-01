@@ -564,6 +564,386 @@ describe("lxp:", function()
 		end)
 
 
+
+		describe("Element Declarations", function()
+
+			-- test data from examples on this page:
+			-- https://xmlwriter.net/xml_guide/element_declaration.shtml
+			local data = {
+				{
+					desc = "PCDATA",
+					xml = [[
+						<!DOCTYPE foo [
+							<!ELEMENT bar (#PCDATA)>
+						]>
+						<root/>
+					]],
+					expected = {
+						{ "ElementDecl", "bar", "MIXED" },
+					},
+				}, {
+					desc = "EMPTY",
+					xml = [[
+						<!DOCTYPE foo [
+							<!ELEMENT bar EMPTY>
+						]>
+						<root/>
+					]],
+					expected = {
+						{ "ElementDecl", "bar", "EMPTY" },
+					},
+				}, {
+					desc = "ANY",
+					xml = [[
+						<!DOCTYPE foo [
+							<!ELEMENT bar ANY>
+						]>
+						<root/>
+					]],
+					expected = {
+						{ "ElementDecl", "bar", "ANY" },
+					},
+				}, {
+					desc = "children",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (id)>
+							<!ELEMENT id (#PCDATA)>
+						]>
+						<student>
+							<id>9216735</id>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								name = "id",
+								type = "NAME",
+							}
+						} },
+						{ "ElementDecl", "id", "MIXED" },
+					},
+				}, {
+					desc = "sequence of children",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (id,surname,firstname)>
+							<!ELEMENT id (#PCDATA)>
+							<!ELEMENT firstname (#PCDATA)>
+							<!ELEMENT surname (#PCDATA)>
+						]>
+						<student>
+							<id>9216735</id>
+							<surname>Smith</surname>
+							<firstname>Jo</firstname>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								name = "id",
+								type = "NAME",
+							},
+							{
+								name = "surname",
+								type = "NAME",
+							},
+							{
+								name = "firstname",
+								type = "NAME",
+							},
+						} },
+						{ "ElementDecl", "id", "MIXED" },
+						{ "ElementDecl", "firstname", "MIXED" },
+						{ "ElementDecl", "surname", "MIXED" },
+					},
+				}, {
+					desc = "children with qualifiers",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (dob?,subject*,dummy+)>
+							<!ELEMENT dob (#PCDATA)>
+							<!ELEMENT subject (#PCDATA)>
+							<!ELEMENT dummy (#PCDATA)>
+						]>
+						<student>
+							<dob>19.06.74</dob>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								name = "dob",
+								quantifier = "?",
+								type = "NAME",
+							},
+							{
+								name = "subject",
+								quantifier = "*",
+								type = "NAME",
+							},
+							{
+								name = "dummy",
+								quantifier = "+",
+								type = "NAME",
+							},
+						} },
+						{ "ElementDecl", "dob", "MIXED" },
+						{ "ElementDecl", "subject", "MIXED" },
+						{ "ElementDecl", "dummy", "MIXED" },
+					},
+				}, {
+					desc = "choice of children",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (id|surname)>
+							<!ELEMENT id (#PCDATA)>
+						]>
+						<student>
+								<id>9216735</id>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "CHOICE", nil, {
+							{
+								name = "id",
+								type = "NAME",
+							},
+							{
+								name = "surname",
+								type = "NAME",
+							},
+						} },
+						{ "ElementDecl", "id", "MIXED" },
+					},
+				}, {
+					desc = "nested children 1",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (surname,firstname*,dob?,(origin|sex)?)>
+							<!ELEMENT surname (#PCDATA)>
+							<!ELEMENT firstname (#PCDATA)>
+							<!ELEMENT sex (#PCDATA)>
+						]>
+						<student>
+							<surname>Smith</surname>
+							<firstname>Jo</firstname>
+							<firstname>Sephine</firstname>
+							<sex>female</sex>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								name = "surname",
+								type = "NAME",
+							},
+							{
+								name = "firstname",
+								quantifier = "*",
+								type = "NAME",
+							},
+							{
+								name = "dob",
+								quantifier = "?",
+								type = "NAME",
+							},
+							{
+								quantifier = "?",
+								type = "CHOICE",
+								children = {
+									{
+										name = "origin",
+										type = "NAME",
+									},
+									{
+										name = "sex",
+										type = "NAME",
+									},
+								}
+							},
+						} },
+						{ "ElementDecl", "surname", "MIXED" },
+						{ "ElementDecl", "firstname", "MIXED" },
+						{ "ElementDecl", "sex", "MIXED" },
+					},
+				}, {
+					desc = "nested children 2",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (surname,firstname)>
+							<!ELEMENT firstname (fullname,nickname)>
+							<!ELEMENT surname (#PCDATA)>
+							<!ELEMENT fullname (#PCDATA)>
+							<!ELEMENT nickname (#PCDATA)>
+						]>
+						<student>
+							<surname>Smith</surname>
+							<firstname>
+								<fullname>Josephine</fullname>
+								<nickname>Jo</nickname>
+							</firstname>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								name = "surname",
+								type = "NAME",
+							},
+							{
+								name = "firstname",
+								type = "NAME",
+							},
+						} },
+						{ "ElementDecl", "firstname", "SEQUENCE", nil, {
+							{
+								name = "fullname",
+								type = "NAME",
+							},
+							{
+								name = "nickname",
+								type = "NAME",
+							}
+						} },
+						{ "ElementDecl", "surname", "MIXED" },
+						{ "ElementDecl", "fullname", "MIXED" },
+						{ "ElementDecl", "nickname", "MIXED" },
+					},
+				}, {
+					desc = "nested children 3",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (sex|maritalstatus*)>
+						]>
+						<student>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "CHOICE", nil, {
+							{
+								name = "sex",
+								type = "NAME",
+							},
+							{
+								name = "maritalstatus",
+								quantifier = "*",
+								type = "NAME",
+							},
+						} },
+					},
+				}, {
+					desc = "nested children 4",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student ((sex,maritalstatus)*)>
+						]>
+						<student>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "SEQUENCE", nil, {
+							{
+								quantifier = "*",
+								type = "SEQUENCE",
+								children = {
+									{
+										name = "sex",
+										type = "NAME",
+									},
+									{
+										name = "maritalstatus",
+										type = "NAME",
+									},
+								},
+							},
+						} },
+					},
+				}, {
+					desc = "mixed content 1",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (#PCDATA|id)*>
+							<!ELEMENT id (#PCDATA)>
+						]>
+						<student>
+							Here's a bit of text mixed up with the child element.
+							<id>9216735</id>
+							You can put text anywhere, before or after the child element.
+							You don't even have to include the 'id' element.
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "MIXED", "*", {
+							{
+								name = "id",
+								type = "NAME",
+							},
+						} },
+						{ "ElementDecl", "id", "MIXED" },
+					},
+				}, {
+					desc = "mixed content 2",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (#PCDATA)>
+						]>
+						<student>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "MIXED" },
+					},
+				}, {
+					desc = "mixed content 3",
+					xml = [[
+						<!DOCTYPE student [
+							<!ELEMENT student (#PCDATA|id|surname|dob)*>
+							<!ELEMENT id (#PCDATA)>
+							<!ELEMENT surname (#PCDATA)>
+						]>
+						<student>
+							You can put text anywhere. You can also put the elements in any
+							order in the document.
+							<surname>Smith</surname>
+							And, you don't have to include all the elements listed in the
+							element declaration.
+							<id>9216735</id>
+						</student>
+					]],
+					expected = {
+						{ "ElementDecl", "student", "MIXED", "*", {
+							{
+								name = "id",
+								type = "NAME",
+							}, {
+								name = "surname",
+								type = "NAME",
+							}, {
+								name = "dob",
+								type = "NAME",
+							}
+						} },
+						{ "ElementDecl", "id", "MIXED" },
+						{ "ElementDecl", "surname", "MIXED" },
+					},
+				}
+			}
+
+			for i, case in ipairs(data) do
+				it(case.desc, function()
+					assert:set_parameter("TableFormatLevel", -1) -- display full table depth
+					local p = test_parser { "ElementDecl" }
+					assert(p:parse(d(case.xml)))
+					p:close()
+					assert.same(case.expected, cbdata)
+				end)
+			end
+
+		end)
+
+
+
 		describe("error handling", function()
 
 			it("bad xml", function()
