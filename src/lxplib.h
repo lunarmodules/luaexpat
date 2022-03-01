@@ -24,5 +24,6 @@
 #define SkippedEntityKey		"SkippedEntity"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
+#define ElementDeclKey			"ElementDecl"
 
 int luaopen_lxp (lua_State *L);
