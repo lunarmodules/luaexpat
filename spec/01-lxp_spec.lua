@@ -498,13 +498,14 @@ describe("lxp:", function()
 
 
 		it("handles doctype declarations", function()
-			local p = test_parser { "StartDoctypeDecl"}
+			local p = test_parser { "StartDoctypeDecl", "EndDoctypeDecl"}
 			assert(p:parse([[<!DOCTYPE root PUBLIC "foo" "hello-world">]]))
 			assert(p:parse[[<root/>]])
 			p:close()
 
 			assert.same({
 				{ "StartDoctypeDecl", "root", "hello-world", "foo", false },
+				{ "EndDoctypeDecl" },
 			}, cbdata)
 		end)
 

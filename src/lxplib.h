@@ -23,6 +23,7 @@
 #define AttlistDeclKey			"AttlistDecl"
 #define SkippedEntityKey		"SkippedEntity"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
+#define EndDoctypeDeclKey		"EndDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
 #define ElementDeclKey			"ElementDecl"
 

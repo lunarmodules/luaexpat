@@ -304,6 +304,11 @@ for more than one parser for example.</p>
 	<dd>Called when the <em>parser</em> detects the end of a CDATA
 	section.</dd>
 
+	<dt><strong>callbacks.EndDoctypeDecl = function(parser)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the end of the <em>DOCTYPE</em>
+	declaration when the closing &gt; is encountered, but after processing any
+	external subset.</dd>
+
 	<dt><strong>callbacks.EndElement = function(parser, elementName)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the ending of an XML
 	element with <em>elementName</em>.</dd>
