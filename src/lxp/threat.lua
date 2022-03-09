@@ -107,14 +107,30 @@ function threat.new(callbacks, separator, merge_character_data)
 		parser:stop()
 	end
 
-	function p:close() return parser:close() end
+	function p:close()
+		local ok, err = parser:close()
+		return ok == parser and p or ok, err
+	end
 	function p:getbase() return parser:getbase() end
 	function p:getcallbacks() return callbacks end
 	function p:pos() return parser:pos() end
 	function p:getcurrentbytecount() return parser:getcurrentbytecount() end
-	function p:setbase(base) return parser:setbase(base) end
-	function p:setencoding(encoding) return parser:setencoding(encoding) end
-	function p:stop() return parser:stop() end
+	function p:setbase(base)
+		local ok, err = parser:setbase(base)
+		return ok == parser and p or ok, err
+	end
+	function p:setencoding(encoding)
+		local ok, err = parser:setencoding(encoding)
+		return ok == parser and p or ok, err
+	end
+	function p:stop()
+		local ok, err = parser:stop()
+		return ok == parser and p or ok, err
+	end
+	function p:returnnstriplet(enable)
+		local ok, err = parser:returnnstriplet(enable)
+		return ok == parser and p or ok, err
+	end
 	do
 		local size = 0
 		function p:parse(s)
@@ -129,6 +145,9 @@ function threat.new(callbacks, separator, merge_character_data)
 			end
 			if checks.buffer and size - parser:pos() > checks.buffer then
 				return nil, "unparsed buffer too large"
+			end
+			if a == parser then
+				return p,b,c,d,e
 			end
 			return a,b,c,d,e
 		end
