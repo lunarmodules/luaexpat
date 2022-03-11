@@ -2,7 +2,9 @@
 ** See Copyright Notice in license.html
 */
 
-#define ParserType	"Expat"
+#define LuaExpatCopyright	"Copyright (C) 2003-2007 The Kepler Project, 2013-2022 Matthew Wild"
+#define LuaExpatVersion		"LuaExpat 1.4.0"
+#define ParserType		"Expat"
 
 #define StartCdataKey			"StartCdataSection"
 #define EndCdataKey			"EndCdataSection"
