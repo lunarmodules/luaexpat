@@ -46,6 +46,7 @@
 			<ul>
 				<li><a href="lom.html">Lua Object Model</a></li>
 				<li><strong>Parse to table</strong></li>
+				<li><a href="threat.html">Threat protection</a></li>
 			</ul>
 		</li>
 		<li><a href="https://github.com/lunarmodules/luaexpat">Project</a>
@@ -101,8 +102,11 @@ this format are:</p>
 		The second parameter <em>opts</em> is an options table that supports the
 		following options;
 		<ul>
-			<li><em>separator (string)</em>: the namespace separator character to use, setting
-			this will enable namespace aware parsing.</li>
+			<li><em>separator (string)</em>: the namespace separator character to
+			use, setting this will enable namespace aware parsing.</li>
+			<li><em>threat (table)</em>: a <a href="threat.html#options">threat
+			protection options</a> table. If provided the threat protection parser
+			will be used instead of the regular <em>lxp</em> parser.</li>
 		</ul>
 		Upon parsing errors it will return <code>nil, err, line, col, pos</code>.
 	</dd>

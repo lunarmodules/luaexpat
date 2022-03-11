@@ -319,43 +319,50 @@ describe("totable:", function()
 			local doc = preamble .. test.input
 
 
+			-- run all tests twice; using plain and threat protected parser
+			for _, parser in ipairs { "lxp", "lxp.threat"} do
+				local opts = {
+					separator = "?",
+					threat = parser == "lxp.threat" and {} or nil,
+				}
 
-			describe("parse:", function()
+				describe(parser..".parse()", function()
 
-				it("string (all at once)", function()
-					local o = assert(totable.parse(doc, { separator = "?" }))
-					assert.same(test.totable, o)
-				end)
-
-
-				it("iterator", function()
-					local o = assert(totable.parse(string.gmatch(doc, ".-%>"), { separator = "?" }))
-					assert.same(test.totable, o)
-				end)
-
-
-				it("file", function()
-					local fn = assert(require("pl.path").tmpname())
-					finally(function()
-						os.remove(fn)
+					it("string (all at once)", function()
+						local o = assert(totable.parse(doc, opts))
+						assert.same(test.totable, o)
 					end)
-					assert(require("pl.utils").writefile(fn, doc))
-					local o = assert(totable.parse(assert(io.open(fn)), { separator = "?" }))
-					assert.same(test.totable, o)
+
+
+					it("iterator", function()
+						local o = assert(totable.parse(string.gmatch(doc, ".-%>"), opts))
+						assert.same(test.totable, o)
+					end)
+
+
+					it("file", function()
+						local fn = assert(require("pl.path").tmpname())
+						finally(function()
+							os.remove(fn)
+						end)
+						assert(require("pl.utils").writefile(fn, doc))
+						local o = assert(totable.parse(assert(io.open(fn)), opts))
+						assert.same(test.totable, o)
+					end)
+
+
+					it("table", function()
+						local t = {}
+						for i = 1, #doc, 10 do
+							t[#t+1] = doc:sub(i, i+9)
+						end
+						local o = assert(totable.parse(t, opts))
+						assert.same(test.totable, o)
+					end)
+
 				end)
 
-
-				it("table", function()
-					local t = {}
-					for i = 1, #doc, 10 do
-						t[#t+1] = doc:sub(i, i+9)
-					end
-					local o = assert(totable.parse(t, { separator = "?" }))
-					assert.same(test.totable, o)
-				end)
-
-			end)
-
+			end
 
 
 			it("clean", function()

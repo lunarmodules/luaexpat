@@ -2,8 +2,6 @@
 -- Based on Luiz Henrique de Figueiredo's lxml:
 -- http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lxml
 
-local lxp = require "lxp"
-
 local table = require"table"
 local tinsert, tremove = table.insert, table.remove
 local assert, tostring, type = assert, tostring, type
@@ -50,7 +48,15 @@ local function parse (o, opts)
 		_nonstrict = true,
 		stack = {{}},
 	}
-	local p = lxp.new(c, opts.separator)
+
+	local p
+	if opts.threat then
+		c.threat = opts.threat
+		p = require("lxp.threat").new(c, opts.separator)
+	else
+		p = require("lxp").new(c, opts.separator)
+	end
+
 	local to = type(o)
 	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)
