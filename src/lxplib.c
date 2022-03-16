@@ -351,20 +351,27 @@ static void f_EntityDecl (void *ud, const char *entityName,
 static void PushElementDeclType(lua_State *L, XML_Content *model) {
   switch(model->type) {
     case XML_CTYPE_EMPTY:
-      return lua_pushliteral(L, "EMPTY");
+      lua_pushliteral(L, "EMPTY");
+      return;
     case XML_CTYPE_ANY:
-      return lua_pushliteral(L, "ANY");
+      lua_pushliteral(L, "ANY");
+      return;
     case XML_CTYPE_MIXED:
-      return lua_pushliteral(L, "MIXED");
+      lua_pushliteral(L, "MIXED");
+      return;
     case XML_CTYPE_NAME:
-      return lua_pushliteral(L, "NAME");
+      lua_pushliteral(L, "NAME");
+      return;
     case XML_CTYPE_CHOICE:
-      return lua_pushliteral(L, "CHOICE");
+      lua_pushliteral(L, "CHOICE");
+      return;
     case XML_CTYPE_SEQ:
-      return lua_pushliteral(L, "SEQUENCE");
+      lua_pushliteral(L, "SEQUENCE");
+      return;
     default:
       /* safe guard, should not happen */
-      return lua_pushliteral(L, "unknown");
+      lua_pushliteral(L, "unknown");
+      return;
   }
 }
 
