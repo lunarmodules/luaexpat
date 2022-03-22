@@ -4,6 +4,5 @@ return {
     lazy = true,
     coverage = false,
     output = "gtest",
-    --helper = "./spec/helper.lua",
   },
 }

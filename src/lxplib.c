@@ -764,13 +764,13 @@ static const struct luaL_Reg lxp_funcs[] = {
 */
 static void set_info (lua_State *L) {
   lua_pushliteral (L, "_COPYRIGHT");
-  lua_pushliteral (L, "Copyright (C) 2003-2007 The Kepler Project, 2013-2022 Matthew Wild");
+  lua_pushliteral (L, LuaExpatCopyright);
   lua_settable (L, -3);
   lua_pushliteral (L, "_DESCRIPTION");
   lua_pushliteral (L, "LuaExpat is a SAX XML parser based on the Expat library");
   lua_settable (L, -3);
   lua_pushliteral (L, "_VERSION");
-  lua_pushliteral (L, "LuaExpat 1.3.0");
+  lua_pushliteral (L, LuaExpatVersion);
   lua_settable (L, -3);
   lua_pushliteral (L, "_EXPAT_VERSION");
   lua_pushstring (L, XML_ExpatVersion());

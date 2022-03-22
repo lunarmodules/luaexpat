@@ -20,6 +20,21 @@ or from [LuaRocks](https://luarocks.org/search?q=luaexpat).
 
 For version history please [see the documentation](https://lunarmodules.github.io/luaexpat/index.html#history)
 
+### Release instructions:
+
+- ensure [the changelog](https://lunarmodules.github.io/luaexpat/index.html#history) is up to date and has
+  the correct version and release date.
+- update the [status](https://lunarmodules.github.io/luaexpat/index.html#status) section
+- update copyright years at the [license page](https://lunarmodules.github.io/luaexpat/license.html) and
+  the [LICENSE file](https://github.com/lunarmodules/luaexpat/blob/master/LICENSE).
+- update version info and copyright in file
+  [`lxplib.h`](https://github.com/lunarmodules/luaexpat/blob/master/src/lxplib.h)
+- create a new rockspec file for the new version
+- commit the above changes and create a PR
+- after merging the PR tag it in `x.y.z` format, and push the tag
+- upload the rock to LuaRocks using: `luarocks upload rockspecs/luaexpat-[version]-1.rockspec --api-key=xxxxx`
+- test the uploaded rock using: `luarocks install luaexpat`
+
 ## License
 
 [MIT license](https://lunarmodules.github.io/luaexpat/license.html)

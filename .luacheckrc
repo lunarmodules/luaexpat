@@ -13,7 +13,7 @@ not_globals = {
 
 include_files = {
   "**/*.lua",
-  "*.rockspec",
+  "**/*.rockspec",
   ".busted",
   ".luacheckrc",
 }
