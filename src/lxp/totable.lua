@@ -2,11 +2,9 @@
 -- Based on Luiz Henrique de Figueiredo's lxml:
 -- http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/#lxml
 
-local lxp = require "lxp"
-
 local table = require"table"
 local tinsert, tremove = table.insert, table.remove
-local assert, pairs, tostring, type = assert, pairs, tostring, type
+local assert, tostring, type = assert, tostring, type
 
 -- auxiliary functions -------------------------------------------------------
 local function starttag (p, tag, attr)
@@ -41,7 +39,8 @@ local function text (p, txt)
 end
 
 -- main function -------------------------------------------------------------
-local function parse (o)
+local function parse (o, opts)
+	local opts = opts or {}
 	local c = {
 		StartElement = starttag,
 		EndElement = endtag,
@@ -49,12 +48,37 @@ local function parse (o)
 		_nonstrict = true,
 		stack = {{}},
 	}
-	local p = lxp.new(c)
-	if type(o) == "string" then
+
+	local p
+	if opts.threat then
+		c.threat = opts.threat
+		p = require("lxp.threat").new(c, opts.separator)
+	else
+		p = require("lxp").new(c, opts.separator)
+	end
+
+	local to = type(o)
+	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)
 		if not status then return nil, err, line, col, pos end
 	else
-		for l in pairs(o) do
+		local iter
+		if to == "table" then
+			local i = 0
+			iter = function() i = i + 1; return o[i] end
+		elseif to == "function" then
+			iter = o
+		elseif to == "userdata" and o.read then
+			iter = function()
+				local l = o:read()
+				if l then
+					return l.."\n"
+				end
+			end
+		else
+			error ("Bad argument #1 to parse: expected a string, a table, a function or a file, but got "..to, 2)
+		end
+		for l in iter do
 			local status, err, line, col, pos = p:parse(l)
 			if not status then return nil, err, line, col, pos end
 		end
@@ -80,6 +104,7 @@ local function compact (t) -- remove empty entries
 			t[i] = nil
 		end
 	end
+	return t
 end
 
 local function clean (t) -- remove empty strings
@@ -92,7 +117,7 @@ local function clean (t) -- remove empty strings
 			t[i] = false
 		end
 	end
-	compact (t)
+	return compact (t)
 end
 
 local function torecord (t) -- move 1-value subtables to table entries
@@ -107,12 +132,12 @@ local function torecord (t) -- move 1-value subtables to table entries
 			end
 		end
 	end
-	compact (t)
+	return compact (t)
 end
 
 return {
 	clean = clean,
-	compact = compact,
+	compact = compact, -- TODO: internal only, should not be exported
 	parse = parse,
 	torecord = torecord,
 }

@@ -54,9 +54,9 @@ static int reporterror (lxp_userdata *xpu) {
   XML_Parser p = xpu->parser;
   lua_pushnil(L);
   lua_pushstring(L, XML_ErrorString(XML_GetErrorCode(p)));
-  lua_pushnumber(L, XML_GetCurrentLineNumber(p));
-  lua_pushnumber(L, XML_GetCurrentColumnNumber(p) + 1);
-  lua_pushnumber(L, XML_GetCurrentByteIndex(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentLineNumber(p));
+  lua_pushinteger(L, XML_GetCurrentColumnNumber(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentByteIndex(p) + 1);
   return 5;
 }
 
@@ -124,7 +124,7 @@ static int getHandle (lxp_userdata *xpu, const char *handle) {
     return 0;
   }
   if (!lua_isfunction(L, -1)) {
-    luaL_error(L, "lxp `%s' callback is not a function", handle);
+    luaL_error(L, "lxp '%s' callback is not a function", handle);
   }
   lua_pushvalue(L, 1);  /* first argument in every call (self) */
   return 1;
@@ -204,7 +204,7 @@ static void f_StartElement (void *ud, const char *name, const char **attrs) {
   lua_newtable(L);
   while (*attrs) {
     if (i <= lastspec) {
-      lua_pushnumber(L, i++);
+      lua_pushinteger(L, i++);
       lua_pushstring(L, *attrs);
       lua_settable(L, -3);
     }
@@ -323,6 +323,153 @@ static void f_UnparsedEntityDecl (void *ud, const char *entityName,
   docall(xpu, 5, 0);
 }
 
+static void f_EntityDecl (void *ud, const char *entityName,
+                                    int is_parameter_entity,
+                                    const char *value,
+                                    int value_length,
+                                    const char *base,
+                                    const char *systemId,
+                                    const char *publicId,
+                                    const char *notationName) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, EntityDeclKey) == 0) return;  /* no handle */
+  lua_pushstring(L, entityName);
+  lua_pushboolean(L, is_parameter_entity);
+  if (value == NULL) {
+    lua_pushnil(L);
+  } else {
+    lua_pushlstring(L, value, value_length);
+  }
+  lua_pushstring(L, base);
+  lua_pushstring(L, systemId);
+  lua_pushstring(L, publicId);
+  lua_pushstring(L, notationName);
+  docall(xpu, 7, 0);
+}
+
+static void PushElementDeclType(lua_State *L, XML_Content *model) {
+  switch(model->type) {
+    case XML_CTYPE_EMPTY:
+      lua_pushliteral(L, "EMPTY");
+      return;
+    case XML_CTYPE_ANY:
+      lua_pushliteral(L, "ANY");
+      return;
+    case XML_CTYPE_MIXED:
+      lua_pushliteral(L, "MIXED");
+      return;
+    case XML_CTYPE_NAME:
+      lua_pushliteral(L, "NAME");
+      return;
+    case XML_CTYPE_CHOICE:
+      lua_pushliteral(L, "CHOICE");
+      return;
+    case XML_CTYPE_SEQ:
+      lua_pushliteral(L, "SEQUENCE");
+      return;
+    default:
+      /* safe guard, should not happen */
+      lua_pushliteral(L, "unknown");
+      return;
+  }
+}
+
+static int PushElementDeclQuant(lua_State *L, XML_Content *model) {
+  switch(model->quant) {
+    case XML_CQUANT_NONE:
+      return 0;
+    case XML_CQUANT_OPT:
+      lua_pushliteral(L, "?");
+      return 1;
+    case XML_CQUANT_REP:
+      lua_pushliteral(L, "*");
+      return 1;
+    case XML_CQUANT_PLUS:
+      lua_pushliteral(L, "+");
+      return 1;
+    default:
+      /* safe guard, should not happen */
+      lua_pushliteral(L, "unknown");
+      return 1;
+  }
+}
+
+static void PushElementDeclChildren(lua_State *L, XML_Content *model) {
+  lua_checkstack(L, 4);
+  int i;
+  XML_Content *child;
+  for (i = 0; i < model->numchildren; i++) {
+    child = model->children+i;
+    lua_newtable(L);
+    PushElementDeclType(L, child);
+    lua_setfield(L, -2, "type");
+    if (PushElementDeclQuant(L, child) != 0) {
+      lua_setfield(L, -2, "quantifier");
+    }
+    if (child->name != NULL) {
+      lua_pushstring(L, child->name);
+      lua_setfield(L, -2, "name");
+    }
+    if (child->numchildren > 0 ) {
+      lua_newtable(L);
+      PushElementDeclChildren(L, child);
+      lua_setfield(L, -2, "children");
+    }
+
+    lua_rawseti(L, -2, i+1);
+  }
+}
+
+static void f_ElementDecl (void *ud, const char *name, XML_Content *model) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, ElementDeclKey) == 0) {   /* no handle */
+    XML_FreeContentModel(xpu->parser, model);
+    return;
+  }
+  lua_pushstring(L, name);
+  PushElementDeclType(L, model);
+  if (PushElementDeclQuant(L, model) == 0) {
+    lua_pushnil(L);
+  }
+  if (model->numchildren == 0) {
+    XML_FreeContentModel(xpu->parser, model);
+    docall(xpu, 3, 0);
+  } else {
+    lua_newtable(L);
+    PushElementDeclChildren(L, model);
+    XML_FreeContentModel(xpu->parser, model);
+    docall(xpu, 4, 0);
+  }
+}
+
+static void f_AttlistDecl (void *ud, const char *elName,
+                                     const char *attName,
+                                     const char *attType,
+                                     const char *dflt,
+                                     int isRequired) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, AttlistDeclKey) == 0) return;  /* no handle */
+  lua_pushstring(L, elName);
+  lua_pushstring(L, attName);
+  lua_pushstring(L, attType);
+  lua_pushstring(L, dflt);
+  lua_pushboolean(L, isRequired);
+  docall(xpu, 5, 0);
+}
+
+static void f_SkippedEntity (void *ud, const char *entityName,
+                                       int isParameter) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  lua_State *L = xpu->L;
+  if (getHandle(xpu, SkippedEntityKey) == 0) return;  /* no handle */
+  lua_pushstring(L, entityName);
+  lua_pushboolean(L, isParameter);
+  docall(xpu, 2, 0);
+}
+
 static void f_StartDoctypeDecl (void *ud, const XML_Char *doctypeName,
                                           const XML_Char *sysid,
                                           const XML_Char *pubid,
@@ -336,6 +483,12 @@ static void f_StartDoctypeDecl (void *ud, const XML_Char *doctypeName,
   docall(xpu, 4, 0);
 }
 
+static void f_EndDoctypeDecl (void *ud) {
+  lxp_userdata *xpu = (lxp_userdata *)ud;
+  if (getHandle(xpu, EndDoctypeDeclKey) == 0) return;  /* no handle */
+  docall(xpu, 0, 0);
+}
+
 static void f_XmlDecl (void *ud, const XML_Char *version,
                                  const XML_Char *encoding,
                                  int standalone) {
@@ -343,8 +496,12 @@ static void f_XmlDecl (void *ud, const XML_Char *version,
   if (getHandle(xpu, XmlDeclKey) == 0) return;  /* no handle */
   lua_pushstring(xpu->L, version);
   lua_pushstring(xpu->L, encoding);
-  lua_pushboolean(xpu->L, standalone);
-  docall(xpu, 3, 0);
+  if (standalone >= 0) {
+    lua_pushboolean(xpu->L, standalone);
+    docall(xpu, 3, 0);
+  } else {
+    docall(xpu, 2, 0);
+  }
 }
 /* }====================================================== */
 
@@ -366,7 +523,8 @@ static void checkcallbacks (lua_State *L) {
     "Default", "DefaultExpand", "StartElement", "EndElement",
     "ExternalEntityRef", "StartNamespaceDecl", "EndNamespaceDecl",
     "NotationDecl", "NotStandalone", "ProcessingInstruction",
-    "UnparsedEntityDecl", "StartDoctypeDecl", "XmlDecl", NULL};
+    "UnparsedEntityDecl", "EntityDecl", "StartDoctypeDecl", "EndDoctypeDecl",
+    "XmlDecl", "AttlistDecl", "SkippedEntity", "ElementDecl", NULL};
   if (hasfield(L, "_nonstrict")) return;
   lua_pushnil(L);
   while (lua_next(L, 1)) {
@@ -421,10 +579,20 @@ static int lxp_make_parser (lua_State *L) {
     XML_SetProcessingInstructionHandler(p, f_ProcessingInstruction);
   if (hasfield(L, UnparsedEntityDeclKey))
     XML_SetUnparsedEntityDeclHandler(p, f_UnparsedEntityDecl);
+  if (hasfield(L, EntityDeclKey))
+    XML_SetEntityDeclHandler(p, f_EntityDecl);
+  if (hasfield(L, AttlistDeclKey))
+    XML_SetAttlistDeclHandler(p, f_AttlistDecl);
+  if (hasfield(L, SkippedEntityKey))
+    XML_SetSkippedEntityHandler(p, f_SkippedEntity);
   if (hasfield(L, StartDoctypeDeclKey))
     XML_SetStartDoctypeDeclHandler(p, f_StartDoctypeDecl);
+  if (hasfield(L, EndDoctypeDeclKey))
+    XML_SetEndDoctypeDeclHandler(p, f_EndDoctypeDecl);
   if (hasfield(L, XmlDeclKey))
     XML_SetXmlDeclHandler(p, f_XmlDecl);
+  if (hasfield(L, ElementDeclKey))
+    XML_SetElementDeclHandler(p, f_ElementDecl);
   return 1;
 }
 
@@ -449,7 +617,8 @@ static int setbase (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   if (XML_SetBase(xpu->parser, luaL_checkstring(L, 2)) == 0)
     luaL_error(L, "no memory to store base");
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 
@@ -484,7 +653,7 @@ static int parse_aux (lua_State *L, lxp_userdata *xpu, const char *s,
   }
   if (s == NULL) xpu->state = XPSfinished;
   if (status) {
-    lua_pushboolean(L, 1);
+    lua_settop(L, 1);  /* return parser userdata on success */
     return 1;
   }
   else { /* error */
@@ -497,10 +666,15 @@ static int lxp_parse (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   size_t len;
   const char *s = luaL_optlstring(L, 2, NULL, &len);
-  if (xpu->state == XPSfinished && s != NULL) {
-    lua_pushnil(L);
-    lua_pushliteral(L, "cannot parse - document is finished");
-    return 2;
+  if (xpu->state == XPSfinished) {
+    if (s != NULL) {
+      lua_pushnil(L);
+      lua_pushliteral(L, "cannot parse - document is finished");
+      return 2;
+    } else {
+      lua_settop(L, 1);
+      return 1;
+    }
   }
   return parse_aux(L, xpu, s, len);
 }
@@ -515,26 +689,36 @@ static int lxp_close (lua_State *L) {
   lxpclose(L, xpu);
   if (status > 1) luaL_error(L, "error closing parser: %s",
                                 lua_tostring(L, -status+1));
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 
 static int lxp_pos (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   XML_Parser p = xpu->parser;
-  lua_pushnumber(L, XML_GetCurrentLineNumber(p));
-  lua_pushnumber(L, XML_GetCurrentColumnNumber(p) + 1);
-  lua_pushnumber(L, XML_GetCurrentByteIndex(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentLineNumber(p));
+  lua_pushinteger(L, XML_GetCurrentColumnNumber(p) + 1);
+  lua_pushinteger(L, XML_GetCurrentByteIndex(p) + 1);
   return 3;
 }
 
+
+static int lxp_setreturnnstriplet (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  luaL_argcheck(L, xpu->state == XPSpre, 1, "invalid parser state");
+  XML_SetReturnNSTriplet(xpu->parser, lua_toboolean(L, 2));
+  lua_settop(L, 1);
+  return 1;
+}
 
 static int lxp_setencoding (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   const char *encoding = luaL_checkstring(L, 2);
   luaL_argcheck(L, xpu->state == XPSpre, 1, "invalid parser state");
   XML_SetEncoding(xpu->parser, encoding);
-  return 0;
+  lua_settop(L, 1);
+  return 1;
 }
 
 static int lxp_stop (lua_State *L) {
@@ -564,6 +748,7 @@ static const struct luaL_Reg lxp_meths[] = {
   {"getcallbacks", getcallbacks},
   {"getbase", getbase},
   {"setbase", setbase},
+  {"returnnstriplet", lxp_setreturnnstriplet},
   {"stop", lxp_stop},
   {NULL, NULL}
 };
@@ -579,13 +764,13 @@ static const struct luaL_Reg lxp_funcs[] = {
 */
 static void set_info (lua_State *L) {
   lua_pushliteral (L, "_COPYRIGHT");
-  lua_pushliteral (L, "Copyright (C) 2003-2021 Kepler Project, Matthew Wild");
+  lua_pushliteral (L, LuaExpatCopyright);
   lua_settable (L, -3);
   lua_pushliteral (L, "_DESCRIPTION");
   lua_pushliteral (L, "LuaExpat is a SAX XML parser based on the Expat library");
   lua_settable (L, -3);
   lua_pushliteral (L, "_VERSION");
-  lua_pushliteral (L, "LuaExpat 1.3.0");
+  lua_pushliteral (L, LuaExpatVersion);
   lua_settable (L, -3);
   lua_pushliteral (L, "_EXPAT_VERSION");
   lua_pushstring (L, XML_ExpatVersion());

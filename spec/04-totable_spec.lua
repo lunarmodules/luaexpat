@@ -1,35 +1,95 @@
-#!/usr/local/bin/lua
-
-local totable = require "lxp.totable"
-
 local tests = {
 	{
-		[[<abc a1="A1" a2="A2">inside tag `abc'</abc>]],
-		{
+		input = [[<abc a1="A1" a2="A2">inside tag 'abc'</abc>]],
+		totable = {
 			[0] = "abc",
 			a1 = "A1",
 			a2 = "A2",
-			"inside tag `abc'",
+			"inside tag 'abc'",
+		},
+		clean = { -- no whitesapce, no changes
+			[0] = "abc",
+			a1 = "A1",
+			a2 = "A2",
+			"inside tag 'abc'",
+		},
+		torecord = { -- no single entries, no changes
+			[0] = "abc",
+			a1 = "A1",
+			a2 = "A2",
+			"inside tag 'abc'",
 		},
 	},
 	{
-		[[<qwerty q1="q1" q2="q2">
-	<asdf>some text</asdf>
+		input = [[<expat:abc xmlns:expat="http://expat" a1="A1" expat:a2="A2">inside tag 'abc'</expat:abc>]],
+		totable = {
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
+		},
+		clean = { -- no whitesapce, no changes
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
+		},
+		torecord = { -- no single entries, no changes
+			[0] = "http://expat?abc",
+			a1 = "A1",
+			["http://expat?a2"] = "A2",
+			"inside tag 'abc'",
+		},
+	},
+	{
+		input = [[<qwerty q1="q1" q2="q2">
+	<q2>some text</q2>
+	<asdf attr="value">some text</asdf>
 </qwerty>]],
-		{
+		totable = {
 			[0] = "qwerty",
 			q1 = "q1",
 			q2 = "q2",
 			"\n\t",
 			{
+				[0] = "q2",
+				"some text",
+			},
+			"\n\t",
+			{
 				[0] = "asdf",
 				"some text",
+				attr = "value",
 			},
 			"\n",
 		},
+		clean = {
+			[0] = "qwerty",
+			q1 = "q1",
+			q2 = "q2",
+			{
+				[0] = "q2",
+				"some text",
+			},
+			{
+				[0] = "asdf",
+				"some text",
+				attr = "value",
+			},
+		},
+		torecord = {
+			[0] = "qwerty",
+			q1 = "q1",
+			q2 = "q2",
+			{
+				[0] = "q2", -- does not overwrite the existing q2 entry
+				"some text",
+			},
+			asdf = "some text", -- entry moved to a field, NOTE: attribute dropped!!
+		},
 	},
 	{
-		[[
+		input = [[
 <!-- http://www.w3schools.com/xml/simple.xml -->
 <breakfast_menu>
 	<food>
@@ -63,7 +123,7 @@ local tests = {
 		<calories>950</calories>
 	</food>
 </breakfast_menu>]],
-		{
+		totable = {
 			[0] = "breakfast_menu",
 			[1] = "\n\t",
 			[2] = {
@@ -242,37 +302,84 @@ local tests = {
 }
 
 
-local function table_equal (t1, t2)
-	for nome, val in pairs (t1) do
-		local tv = type(val)
-		if tv == "table" then
-			if type(t2[nome]) ~= "table" then
-				return false, "Different types at entry `"..nome.."': t1."..nome.." is "..tv.." while t2."..nome.." is "..type(t2[nome]).." ["..tostring(t2[nome]).."]"
-			else
-				local ok, msg = table_equal (val, t2[nome])
-				if not ok then
-					return false, "["..nome.."]\t"..tostring(val).." ~= "..tostring(t2[nome]).."; "..msg
-				end
+
+describe("totable:", function()
+
+	local totable
+	before_each(function()
+		totable = require "lxp.totable"
+	end)
+
+
+	for i, test in ipairs(tests) do
+
+		describe("case " .. i .. ":", function()
+
+			local preamble = [[<?xml version="1.0" encoding="ISO-8859-1"?>]]
+			local doc = preamble .. test.input
+
+
+			-- run all tests twice; using plain and threat protected parser
+			for _, parser in ipairs { "lxp", "lxp.threat"} do
+				local opts = {
+					separator = "?",
+					threat = parser == "lxp.threat" and {} or nil,
+				}
+
+				describe(parser..".parse()", function()
+
+					it("string (all at once)", function()
+						local o = assert(totable.parse(doc, opts))
+						assert.same(test.totable, o)
+					end)
+
+
+					it("iterator", function()
+						local o = assert(totable.parse(string.gmatch(doc, ".-%>"), opts))
+						assert.same(test.totable, o)
+					end)
+
+
+					it("file", function()
+						local fn = assert(require("pl.path").tmpname())
+						finally(function()
+							os.remove(fn)
+						end)
+						assert(require("pl.utils").writefile(fn, doc))
+						local o = assert(totable.parse(assert(io.open(fn)), opts))
+						assert.same(test.totable, o)
+					end)
+
+
+					it("table", function()
+						local t = {}
+						for i = 1, #doc, 10 do
+							t[#t+1] = doc:sub(i, i+9)
+						end
+						local o = assert(totable.parse(t, opts))
+						assert.same(test.totable, o)
+					end)
+
+				end)
+
 			end
-		else
-			if val ~= t2[nome] then
-				return false, "["..nome.."]\t"..tostring(val).." ~= "..tostring(t2[nome])
-			end
-		end
+
+
+			it("clean", function()
+				local result = assert(totable.parse(doc, { separator = "?" }))
+				totable.clean(result)
+				assert.same(test.clean, result)
+			end)
+
+
+			it("torecord", function()
+				local result = assert(totable.parse(doc, { separator = "?" }))
+				totable.torecord(totable.clean(result))
+				assert.same(test.torecord, result)
+			end)
+
+		end)
+
 	end
-	return true
-end
 
-
-for i, s in ipairs(tests) do
-	local ds = assert (totable.parse ([[<?xml version="1.0" encoding="ISO-8859-1"?>]]..s[1]))
-	assert(table_equal (ds, s[2]))
-end
-
-local t = totable.parse ([[<?xml version="1.0" encoding="ISO-8859-1"?>]]..tests[3][1])
-totable.clean (t)
-assert (table_equal (t, tests[3].clean))
-totable.torecord (t)
-assert (table_equal (t, tests[3].torecord))
-
-print"OK"
+end)

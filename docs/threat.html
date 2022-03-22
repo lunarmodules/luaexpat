@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<title>LuaExpat: XML Expat parsing for the Lua programming language</title>
+	<link rel="stylesheet" href="./doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"><a href="https://github.com/lunarmodules/luaexpat">
+		<img alt="LuaExpat logo" src="luaexpat.png"/>
+	</a></div>
+	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
+	<div id="product_description">XML Expat parsing for the Lua programming language</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+<h1>LuaExpat</h1>
+	<ul>
+		<li><a href="index.html">Home</a>
+			<ul>
+				<li><a href="index.html#overview">Overview</a></li>
+				<li><a href="index.html#status">Status</a></li>
+				<li><a href="index.html#download">Download</a></li>
+				<li><a href="index.html#history">History</a></li>
+				<li><a href="index.html#references">References</a></li>
+				<li><a href="index.html#credits">Credits</a></li>
+			</ul>
+		</li>
+		<li><a href="manual.html">Manual</a>
+			<ul>
+				<li><a href="manual.html#introduction">Introduction</a></li>
+				<li><a href="manual.html#building">Building</a></li>
+				<li><a href="manual.html#installation">Installation</a></li>
+				<li><a href="manual.html#parser">Parser Objects</a></li>
+			</ul>
+		</li>
+		<li><a href="examples.html">Examples</a></li>
+		<li><strong>Additional parsers</strong>
+			<ul>
+				<li><a href="lom.html">Lua Object Model</a></li>
+				<li><a href="totable.html">Parse to table</a></li>
+				<li><strong>Threat protection</strong></li>
+			</ul>
+		</li>
+		<li><a href="https://github.com/lunarmodules/luaexpat">Project</a>
+			<ul>
+				<li><a href="https://github.com/lunarmodules/luaexpat/issues">Bug Tracker</a></li>
+				<li><a href="https://github.com/lunarmodules/luaexpat">Source code</a></li>
+				<li><a href="https://lunarmodules.github.io/luaexpat/">Documentation</a></li>
+			</ul>
+		</li>
+		<li><a href="license.html">License</a></li>
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+<h2><a name="introduction"></a>Introduction</h2>
+
+<p>Threat protection enables validation of structure and size of a document
+while parsing it.</p>
+
+<p>The <em>threat</em> parser is identical to the regular parser.</p>
+<ul>
+	<li>Has the same methods</li>
+	<li>Uses the same signature for creating it through <em>new</em></li>
+	<li>The <em>callbacks</em> table should get another entry <em>threat</em>
+		containing the configuration of the limits</li>
+	<li>Any callback not defined by the user will be added using a no-op
+		function in the <em>callbacks</em> table (exceptions are <em>Default</em>
+		and <em>DefaultExpand</em>)</li>
+	<li>The <em>separator</em> parameter for the constructor is required when
+		any of the following checks have been added (since they require namespace aware parsing);</li>
+		<ul>
+			<li><em>maxNamespaces</em></li>
+			<li><em>prefix</em></li>
+			<li><em>namespaceUri</em></li>
+		</ul>
+</ul>
+
+<h2><a name="limitations"></a>Limitations</h2>
+
+<p>Due to the way the parser works, the elements of a document must first be
+parsed before a callback is issued that verifies its maximum size. For example
+even if the maximum size for an <em>attribute</em> is set to 50 bytes, a 2mb
+attribute will first be entirely parsed before the parser bails out with a size error.
+To protect against this make sure to set the maximum buffer size (option <em>buffer</em>).</p>
+
+<h2><a name="options"></a>Options</h2>
+
+<p>Structural checks:<p>
+<ul>
+	<li><strong>depth</strong> max depth of tags, child elements like Text or Comments are
+	not counted as another level. Default 50.</li>
+	<li><strong>maxChildren</strong> max number of children (Element, Text, Comment,
+	ProcessingInstruction, CDATASection).<br/><em>NOTE</em>: adjacent text/CDATA
+	sections are counted as 1 (so text-cdata-text-cdata is 1 child). Default 100.</li>
+	<li><strong>maxAttributes</strong> max number of attributes (including default ones).
+	<br/><em>NOTE</em>: if not parsing namespaces, then the namespaces will be counted
+	as attributes. Default 100.</li>
+	<li><strong>maxNamespaces</strong> max number of namespaces defined on a tag. Default 20.</li>
+</ul>
+<p>Size limits (per element, in bytes)</p>
+<ul>
+	<li><strong>document</strong> size of entire document. Default 10 mb.</li>
+	<li><strong>buffer</strong> size of the unparsed buffer (see below). Default 1 mb.</li>
+	<li><strong>comment</strong> size of comment. Default 1 kb.</li>
+	<li><strong>localName</strong> size of localname applies to tags and attributes.<br/><em>NOTE:</em>
+	If not parsing namespaces, this limit will count against the full name (prefix + localName).
+	Default 1 kb.</li>
+	<li><strong>prefix</strong> size of prefix, applies to tags and attributes. Default 1 kb.</li>
+	<li><strong>namespaceUri</strong> size of namespace uri. Default 1 kb.</li>
+	<li><strong>attribute</strong> size of attribute value. Default 1 mb.</li>
+	<li><strong>text</strong> text inside tags (counted over all adjacent text/CDATA combined).
+	Default 1 mb.</li>
+	<li><strong>PITarget</strong> size of processing instruction target. Default 1 kb.</li>
+	<li><strong>PIData</strong> size of processing instruction data. Default 1 kb.</li>
+	<li><strong>entityName</strong> size of entity name in EntityDecl in bytes. Default 1 kb.</li>
+	<li><strong>entity</strong> size of entity value in EntityDecl in bytes. Default 1 kb.</li>
+	<li><strong>entityProperty</strong> size of systemId, publicId, or notationName in EntityDecl
+	in bytes. Default 1 kb.</li>
+</ul>
+
+<p>The <em>buffer</em> setting is the maximum size of unparsed data. The unparsed buffer is from the
+last byte delivered through a callback to the end of the current data fed into the parser.</p>
+<p>As an example
+assume we have set a maximum of 1 attribute, with name max 20 and value max 20. This means that
+the maximum allowed opening tag could look like this (take or leave some white space);</p>
+
+<pre class="example">&lt;abcde12345abcde12345 ABCDE12345ABCDE12345="12345678901234567890"&gt;</pre>
+
+<p>But because of the way Expat works, a user could pass in a 2mb attribute value and it would
+have to be parsed completely before the callback for the new element fires.
+In this case the maximum expected buffer would be 2x 20 (attr+tag name) + 1x 20 (attr
+value) + 50 (account for whitespace and other overhead characters) == 110. If this value is set
+and the parser is fed in chunks, it will bail out after hitting the first 110 characters of the
+faulty oversized tag.
+</p>
+
+<h4><a name="example"></a>Example of threat protected parsing</h4>
+
+<pre class="example">
+local threat_parser = require "lxp.threat"
+
+local separator = "\1"
+local callbacks = {
+	-- add your regular callbacks here
+}
+
+local threat = {
+
+	-- structure
+	depth = 3,
+	maxChildren = 3,
+	maxAttributes = 3,
+	maxNamespaces = 3,
+
+	-- sizes
+	document = 2000,
+	buffer = 1000,
+	comment = 20,
+	localName = 20,
+	prefix = 20,
+	namespaceUri = 20,
+	attribute = 20,
+	text = 20,
+	PITarget = 20,
+	PIData = 20,
+}
+
+callbacks.threat = threat
+
+local parser = threat_parser.new(callbacks, separator)
+
+assert(parser.parse(xml_data))
+</pre>
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>

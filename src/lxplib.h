@@ -2,7 +2,9 @@
 ** See Copyright Notice in license.html
 */
 
-#define ParserType	"Expat"
+#define LuaExpatCopyright	"Copyright (C) 2003-2007 The Kepler Project, 2013-2022 Matthew Wild"
+#define LuaExpatVersion		"LuaExpat 1.4.0"
+#define ParserType		"Expat"
 
 #define StartCdataKey			"StartCdataSection"
 #define EndCdataKey			"EndCdataSection"
@@ -19,7 +21,12 @@
 #define NotStandaloneKey		"NotStandalone"
 #define ProcessingInstructionKey	"ProcessingInstruction"
 #define UnparsedEntityDeclKey		"UnparsedEntityDecl"
+#define EntityDeclKey			"EntityDecl"
+#define AttlistDeclKey			"AttlistDecl"
+#define SkippedEntityKey		"SkippedEntity"
 #define StartDoctypeDeclKey		"StartDoctypeDecl"
+#define EndDoctypeDeclKey		"EndDoctypeDecl"
 #define XmlDeclKey			"XmlDecl"
+#define ElementDeclKey			"ElementDecl"
 
 int luaopen_lxp (lua_State *L);

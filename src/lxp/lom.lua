@@ -1,10 +1,8 @@
 -- See Copyright Notice in license.html
 
-local lxp = require "lxp"
-
 local table = require"table"
 local tinsert, tremove = table.insert, table.remove
-local assert, pairs, type = assert, pairs, type
+local assert, type = assert, type
 
 
 -- auxiliary functions -------------------------------------------------------
@@ -34,30 +32,45 @@ local function text (p, txt)
 end
 
 -- main function -------------------------------------------------------------
-local function parse (o)
+local function parse (o, opts)
+	local opts = opts or {}
 	local c = { StartElement = starttag,
 		EndElement = endtag,
 		CharacterData = text,
 		_nonstrict = true,
 		stack = {{}}
 	}
-	local p = lxp.new(c)
+
+	local p
+	if opts.threat then
+		c.threat = opts.threat
+		p = require("lxp.threat").new(c, opts.separator)
+	else
+		p = require("lxp").new(c, opts.separator)
+	end
+
 	local to = type(o)
 	if to == "string" then
 		local status, err, line, col, pos = p:parse(o)
 		if not status then return nil, err, line, col, pos end
 	else
-		local iter, state, init
+		local iter
 		if to == "table" then
-			iter, state, init = pairs(o)
+			local i = 0
+			iter = function() i = i + 1; return o[i] end
 		elseif to == "function" then
 			iter = o
 		elseif to == "userdata" and o.read then
-			iter, state = o.read, o
+			iter = function()
+				local l = o:read()
+				if l then
+					return l.."\n"
+				end
+			end
 		else
 			error ("Bad argument #1 to parse: expected a string, a table, a function or a file, but got "..to, 2)
 		end
-		for l in iter, state, init do
+		for l in iter do
 			local status, err, line, col, pos = p:parse(l)
 			if not status then return nil, err, line, col, pos end
 		end

@@ -11,7 +11,7 @@
 <div id="container">
 
 <div id="product">
-	<div id="product_logo"><a href="http://www.keplerproject.org">
+	<div id="product_logo"><a href="https://github.com/lunarmodules/luaexpat">
 		<img alt="LuaExpat logo" src="luaexpat.png"/>
 	</a></div>
 	<div id="product_name"><big><strong>LuaExpat</strong></big></div>
@@ -31,7 +31,6 @@
 				<li><a href="index.html#history">History</a></li>
 				<li><a href="index.html#references">References</a></li>
 				<li><a href="index.html#credits">Credits</a></li>
-				<li><a href="index.html#contact">Contact</a></li>
 			</ul>
 		</li>
 		<li><strong>Manual</strong>
@@ -43,11 +42,18 @@
 			</ul>
 		</li>
 		<li><a href="examples.html">Examples</a></li>
-		<li><a href="lom.html">Lua Object Model</a></li>
-		<li><a href="http://luaforge.net/projects/luaexpat/">Project</a>
+		<li><strong>Additional parsers</strong>
 			<ul>
-				<li><a href="http://luaforge.net/tracker/?group_id=13">Bug Tracker</a></li>
-				<li><a href="http://luaforge.net/scm/?group_id=13">CVS</a></li>
+				<li><a href="lom.html">Lua Object Model</a></li>
+				<li><a href="totable.html">Parse to table</a></li>
+				<li><a href="threat.html">Threat protection</a></li>
+			</ul>
+		</li>
+		<li><a href="https://github.com/lunarmodules/luaexpat">Project</a>
+			<ul>
+				<li><a href="https://github.com/lunarmodules/luaexpat/issues">Bug Tracker</a></li>
+				<li><a href="https://github.com/lunarmodules/luaexpat">Source code</a></li>
+				<li><a href="https://lunarmodules.github.io/luaexpat/">Documentation</a></li>
 			</ul>
 		</li>
 		<li><a href="license.html">License</a></li>
@@ -59,7 +65,7 @@
 <h2><a name="introduction"></a>Introduction</h2>
 
 <p>LuaExpat is a <a href="http://www.saxproject.org/">SAX</a> XML
-parser based on the <a href="http://www.libexpat.org/">Expat</a> library.
+parser based on the <a href="https://www.libexpat.org/">Expat</a> library.
 SAX is the <em>Simple API for XML</em> and allows programs to:
 </p>
 
@@ -86,18 +92,16 @@ implements the <a href="lom.html">Lua Object Model</a>.</p>
 <h2><a name="building"></a>Building</h2>
 
 <p>
-LuaExpat could be built to Lua 5.1 or to Lua 5.2.
-In both cases,
-the language library and headers files for the desired version
+LuaExpat could be built for Lua 5.1 to 5.4.
+The language library and headers files for the desired version
 must be installed properly.
 LuaExpat also depends on Expat 2.0.0+ which should also be installed.
 </p>
+
+<p>The simplest way of building and installing LuaExpat is through LuaRocks.</p>
+
 <p>
-LuaExpat offers a Makefile and a separate configuration file,
-<code>config</code>,
-which should be edited to suit the particularities of the target platform
-before running
-<code>make</code>.
+LuaExpat also offers a Makefile.
 The file has some definitions like paths to the external libraries,
 compiler options and the like.
 One important definition is the version of Lua language,
@@ -107,16 +111,11 @@ which is not obtained from the installed software.
 
 <h2><a name="installation"></a>Installation</h2>
 
-<p>The compiled binary file should be copied to a directory in your
+<p> installation can be done using LuaRocks or <code>make install</code>.</p>
+
+<p>Manually, the compiled binary file should be copied to a directory in your
 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.cpath">C path</a>.
-Lua 5.0 users should also install
-<a href="http://www.keplerproject.org/compat">Compat-5.1</a>.</p>
-
-<p>Windows users can use the binary version of LuaExpat (<code>lxp.dll</code>, compatible with
-<a href="http://luabinaries.luaforge.net">LuaBinaries</a>) available at
-<a href="http://luaforge.net/projects/luaexpat/files">LuaForge</a>.</p>
-
-<p>The file <code>lom.lua</code> should be copied to a directory in your
+The Lua files <code>./src/lxp/*.lua</code> should be copied to a directory in your
 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.path">Lua path</a>.</p>
 
 <h2><a name="parser"></a>Parser objects</h2>
@@ -128,6 +127,20 @@ different registration method, based on a table of callbacks. This
 table contains references to the callback functions which are
 responsible for the handling of the document parts. The parser will
 assume no behaviour for any undeclared callbacks.</p>
+
+<h4>Finishing parsing</h4>
+
+<p>Since the parser is a streaming parser, handling chunks of input at a time,
+the following input will parse just fine (despite the unbalanced tags);</p>
+<pre class="example">
+    &lt;one&gt;&lt;two&gt;some text&lt;/two&gt;
+</pre>
+<p>Only when making the final call (with no data) to the <em>parse</em> method, the
+document will be closed and an error will be returned;</p>
+<pre class="example">
+    assert(lxp.parse())
+</pre>
+<p>Closing the document is important to ensure the document being complete and valid.</p>
 
 <h4>Constructor</h4>
 
@@ -147,7 +160,7 @@ assume no behaviour for any undeclared callbacks.</p>
 	<dt><strong>parser:close()</strong></dt>
 	<dd>Closes the parser, freeing all memory used by it. A call to
 	parser:close() without a previous call to parser:parse() could
-	result in an error.</dd>
+	result in an error. Returns the parser object on success.</dd>
 
 	<dt><strong>parser:getbase()</strong></dt>
 	<dd>Returns the base for resolving relative URIs.</dd>
@@ -160,11 +173,17 @@ assume no behaviour for any undeclared callbacks.</p>
 	part (or perhaps all) of the document. When called without
 	arguments the document is closed (but the parser still has to be
 	closed).<br/>
-	The function returns a non nil value when the parser has been
-	succesfull, and when the parser finds an error it returns five
-	results: nil, <em>msg</em>, <em>line</em>, <em>col</em>, and
+	The function returns the parser object when the parser has been
+	succesfull. If the parser finds an error it returns five
+	results: <em>nil</em>, <em>msg</em>, <em>line</em>, <em>col</em>, and
 	<em>pos</em>, which are the error message, the line number,
-	column number and absolute position of the error in the XML document.</dd>
+	column number and absolute position of the error in the XML document.
+<pre class="example">
+local cb = {}    -- table with callbacks
+local doc = "&lt;root&gt;xml doc&lt;/root&gt;"
+lxp.new(cb):setencoding("UTF-8"):parse(doc):parse():close()
+</pre>
+	</dd>
 
 	<dt><strong>parser:pos()</strong></dt>
 	<dd>Returns three results: the current parsing line, column, and
@@ -174,16 +193,23 @@ assume no behaviour for any undeclared callbacks.</p>
 	<dd>Return the number of bytes of input corresponding to the current
 	event. This function can only be called inside a handler, in other
 	contexts it will return 0. Do not use inside a CharacterData handler
-	unless CharacterData merging has been disabled (see lxp.new).</dd>
+	unless CharacterData merging has been disabled (see <em>lxp.new</em>).</dd>
+
+	<dt><strong>parser:returnnstriplet(bool)</strong></dt>
+	<dd>Instructs the parser to return namespaces in triplet (<em>true</em>), or
+	only duo (<em>false</em>).
+	Setting this must be done before calling <em>parse</em>, and will only
+	have effect if the parser was created with a <em>separator</em>.
+	Returns the parser object.</dd>
 
 	<dt><strong>parser:setbase(base)</strong></dt>
 	<dd>Sets the <em>base</em> to be used for resolving relative URIs in
-	system identifiers.</dd>
+	system identifiers. Returns the parser object on success.</dd>
 
 	<dt><strong>parser:setencoding(encoding)</strong></dt>
 	<dd>Set the encoding to be used by the parser. There are four
 	built-in encodings, passed as strings: "US-ASCII",
-	"UTF-8", "UTF-16", and "ISO-8859-1".</dd>
+	"UTF-8", "UTF-16", and "ISO-8859-1". Returns the parser object on success.</dd>
 
 	<dt><strong>parser:stop()</strong></dt>
 	<dd>Abort the parser and prevent it from parsing any further
@@ -208,11 +234,12 @@ will be called.</p>
 
 <p>The callbacks table indices are named after the equivalent Expat
 callbacks:<br />
-<em>CharacterData</em>, <em>Comment</em>,
-<em>Default</em>, <em>DefaultExpand</em>, <em>EndCdataSection</em>,
-<em>EndElement</em>, <em>EndNamespaceDecl</em>,
+<em>AttlistDecl</em>, <em>CharacterData</em>, <em>Comment</em>,
+<em>Default</em>, <em>DefaultExpand</em>,
+<em>ElementDecl</em>, <em>EndCdataSection</em>,
+<em>EndElement</em>, <em>EndNamespaceDecl</em>, <em>EntityDecl</em>,
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
-<em>NotationDecl</em>, <em>ProcessingInstruction</em>,
+<em>NotationDecl</em>, <em>ProcessingInstruction</em>, <em>SkippedEntity</em>,
 <em>StartCdataSection</em>, <em>StartElement</em>,
 <em>StartNamespaceDecl</em>, <em>UnparsedEntityDecl</em>,
 <em>XmlDecl</em> and <em>StartDoctypeDecl</em>.</p>
@@ -234,6 +261,17 @@ calling parser itself, thus allowing the same functions to be used
 for more than one parser for example.</p>
 
 <dl class="reference">
+	<dt><strong>callbacks.AttlistDecl = function(parser, elementName, attrName, attrType, default, required)</strong></dt>
+	<dd>The Attlist declaration handler is called for each attribute. So
+	a single Attlist declaration with multiple attributes declared will
+	generate multiple calls to this handler. The <em>default</em> parameter
+	may be <em>nil</em> in the case of the "#IMPLIED" or "#REQUIRED"
+	keyword. The <em>required</em> parameter will be <em>true</em> and the
+	<em>default</em> value will be <em>nil</em> in the case of "#REQUIRED".
+	If <em>required</em> is <em>true</em> and <em>default</em> is non-<em>nil</em>,
+	then this is a "#FIXED" default.
+	</dd>
+
 	<dt><strong>callbacks.CharacterData = function(parser, string)</strong></dt>
 	<dd>Called when the <em>parser</em> recognizes an XML CDATA <em>string</em>.
 	Note that LuaExpat automatically combines multiple CharacterData events
@@ -258,9 +296,25 @@ for more than one parser for example.</p>
 	otherwise be handled. Using this handler doesn't affect expansion
 	of internal entity references.</dd>
 
+	<dt><strong>callbacks.ElementDecl = function(parser, name, type, quantifier, children)</strong></dt>
+	<dd>Called when the <em>parser</em> detects an Element declaration in the DTD.
+	The <em>type</em> parameter will be any of; <em>"EMPTY", "ANY", "MIXED", "NAME",
+	"CHOICE",</em> or <em>"SEQUENCE"</em>.
+	The <em>quantifier</em> parameter will be any of <em>"?", "*", "+",</em> or
+	<em>nil</em>. The array <em>children</em> can be <em>nil</em> if there are no
+	children. The child elements in the array will be objects with the following fields;
+	<em>name, type, quantifier</em>, and <em>children</em>. Those fields will have
+	the same values as the similarly named parameters for this call.
+	</dd>
+
 	<dt><strong>callbacks.EndCdataSection = function(parser)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the end of a CDATA
 	section.</dd>
+
+	<dt><strong>callbacks.EndDoctypeDecl = function(parser)</strong></dt>
+	<dd>Called when the <em>parser</em> detects the end of the <em>DOCTYPE</em>
+	declaration when the closing &gt; is encountered, but after processing any
+	external subset.</dd>
 
 	<dt><strong>callbacks.EndElement = function(parser, elementName)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the ending of an XML
@@ -271,6 +325,23 @@ for more than one parser for example.</p>
 	namespace with <em>namespaceName</em>. The handling of the end
 	namespace is done after the handling of the end tag for the element
 	the namespace is associated with.</dd>
+
+	<dt><strong>callbacks.EntityDecl = function(parser, entityName, is_parameter, value, base, systemId, publicId, notationName)</strong></dt>
+	<dd>This is called for entity declarations. The <em>is_parameter</em>
+	argument will be <em>true</em> if the entity is a parameter entity,
+	<em>false</em> otherwise.
+
+	For internal entities (&lt;!ENTITY foo "bar"&gt;), <em>value</em> will
+	be a string and <em>systemId</em>, <em>publicID</em>, and <em>notationName</em>
+	will be <em>nil</em>.
+	The <em>value</em> string can be <em>nil</em>, as well as an empty string, which is
+	a valid value.
+
+	For external entities, <em>value</em> will be <em>nil</em> and <em>systemId</em> will be
+	a string. The <em>publicId</em> argument will be <em>nil</em> unless a public
+	identifier was provided. The <em>notationName</em> argument will have a
+	string value only for unparsed entity declarations.
+	</dd>
 
 	<dt><strong>callbacks.ExternalEntityRef = function(parser, subparser, base, systemId, publicId)</strong></dt>
 	<dd>Called when the <em>parser</em> detects an external entity
@@ -309,6 +380,17 @@ for more than one parser for example.</p>
 	processing instruction. The <em>data</em> is the rest of the
 	characters in it after skipping all whitespace after the initial
 	word.</dd>
+
+	<dt><strong>callbacks.SkippedEntity = function(parser, name, isParameter)</strong></dt>
+	<dd>This is called in two situations.
+	One; An entity reference is encountered for which no declaration has been
+	read *and* this is not an error.
+	Two; An internal entity reference is read, but not expanded, because
+	the <em>Default</em> handler has been called.
+	<strong>Note:</strong> skipped parameter entities in declarations and skipped
+	general entities in attribute values cannot be reported, because the event
+	would be out of sync with the reporting of the declarations or attribute values.
+	</dd>
 
 	<dt><strong>callbacks.StartCdataSection = function(parser)</strong></dt>
 	<dd>Called when the <em>parser</em> detects the begining of an XML
@@ -356,7 +438,7 @@ for more than one parser for example.</p>
 	in that start tag.</dd>
 
 	<dt><strong>callbacks.UnparsedEntityDecl = function(parser, entityName, base, systemId, publicId, notationName)</strong></dt>
-	<dd>Called when the <em>parser</em> receives declarations of
+	<dd><strong>Obsolete: use EntityDecl instead</strong>. Called when the <em>parser</em> receives declarations of
 	unparsed entities. These are entity declarations that have a
 	notation (NDATA) field.<br/>
 	As an example, in the chunk
@@ -373,7 +455,7 @@ for more than one parser for example.</p>
 	<dd>Called when the <em>parser</em> encounters an XML document declaration (these are
 	optional, and valid only at the start of the document). The callback receives
 	the declared XML <em>version</em> and document <em>encoding</em> as strings, and
-	<em>standalone</em> as a boolean.</dd>
+	<em>standalone</em> as a boolean (or <em>nil</em> if it was not specified).</dd>
 </dl>
 
 <h4><a name="separator"></a>The separator character</h4>
