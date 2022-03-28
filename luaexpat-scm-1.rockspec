@@ -1,9 +1,9 @@
 local package_name = "luaexpat"
-local package_version = "dev"
+local package_version = "scm"
 local rockspec_revision = "1"
 local github_account_name = "lunarmodules"
 local github_repo_name = package_name
-local git_checkout = package_version == "dev" and "master" or package_version
+local git_checkout = package_version == "scm" and "master" or package_version
 
 
 package = package_name
