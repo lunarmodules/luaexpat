@@ -31,8 +31,9 @@ For version history please [see the documentation](https://lunarmodules.github.i
   [`lxplib.h`](https://github.com/lunarmodules/luaexpat/blob/master/src/lxplib.h)
 - create a new rockspec file for the new version
 - commit the above changes and create a PR
-- after merging the PR tag it in `x.y.z` format, and push the tag
-- upload the rock to LuaRocks using: `luarocks upload rockspecs/luaexpat-[version]-1.rockspec --api-key=xxxxx`
+- after merging the PR tag it in `x.y.z` format, and push the tag (make sure the
+  rockspec file is touched in the same commit that gets the version tag)
+- the Github actions CI will automatically push a new LuaRocks release
 - test the uploaded rock using: `luarocks install luaexpat`
 
 ## License
