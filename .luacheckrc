@@ -27,5 +27,4 @@ exclude_files = {
     ".lua",
     ".luarocks",
     ".install",
-	"rockspecs/luaexpat-1.3.3-1.rockspec" -- has whitespace issues but already published
 }
