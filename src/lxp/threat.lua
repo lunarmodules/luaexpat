@@ -143,8 +143,11 @@ function threat.new(callbacks, separator, merge_character_data)
 			if threat_error_data then
 				return nil, threat_error_data[1], threat_error_data[2], threat_error_data[3], threat_error_data[4]
 			end
-			if checks.buffer and size - parser:pos() > checks.buffer then
-				return nil, "unparsed buffer too large"
+			if checks.buffer then
+				local _, _, pos = parser:pos()
+				if size - pos > checks.buffer then
+					return nil, "unparsed buffer too large"
+				end
 			end
 			if a == parser then
 				return p,b,c,d,e

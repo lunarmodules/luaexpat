@@ -1523,15 +1523,19 @@ describe("threats", function()
 
 	describe("buffer size", function()
 
-		local old_doc
+		local old_doc, old_mchild
 
 		setup(function()
 			old_doc = threat.document
+			old_mchild = threat.maxChildren
 			threat.document = nil  -- disable document checks with these tests
+			threat.maxChildren = nil -- and max children checks
 		end)
 
 		teardown(function()
-			threat.document = old_doc -- reenable old setting
+			-- reenable old setting
+			threat.document = old_doc
+			threat.maxChildren = old_mchild
 		end)
 
 
@@ -1555,6 +1559,24 @@ describe("threats", function()
 
 			assert.equal("unparsed buffer too large", err)
 			assert.falsy(r)
+		end)
+
+
+		it("passes with complexer xml", function()
+			local child = "<child>hello</child>" -- child within constraints
+			local doc = "<root>"..child:rep(100).."</root>"
+			local i = 0
+			local r, err
+			local chunk_size = 10 -- parse in chunks of 10 bytes
+			repeat
+				i = i + 1
+				local s = (i-1) * chunk_size + 1
+				local e = s + chunk_size - 1
+				r, err = p:parse(doc:sub(s, e))
+			until (not r) or (s > #doc)
+
+			assert.is_nil(err)
+			assert.truthy(r)
 		end)
 
 	end)
