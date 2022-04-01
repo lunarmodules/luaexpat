@@ -35,6 +35,7 @@ For version history please [see the documentation](https://lunarmodules.github.i
   rockspec file is touched in the same commit that gets the version tag)
 - the Github actions CI will automatically push a new LuaRocks release
 - test the uploaded rock using: `luarocks install luaexpat`
+- add the new release to the [Github releases](https://github.com/lunarmodules/luaexpat/releases)
 
 ## License
 
