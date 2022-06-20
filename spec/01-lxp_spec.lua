@@ -80,6 +80,8 @@ describe("lxp:", function()
 			assert.is.string(lxp._DESCRIPTION)
 			assert.is.string(lxp._COPYRIGHT)
 			assert.is.string(lxp._EXPAT_VERSION)
+			assert.is.table(lxp._EXPAT_FEATURES)
+			assert.is.number(lxp._EXPAT_FEATURES.XML_CONTEXT_BYTES)
 		end)
 
 
