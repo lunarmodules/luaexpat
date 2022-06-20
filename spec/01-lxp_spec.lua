@@ -96,9 +96,16 @@ describe("lxp:", function()
 		end)
 
 
-		it("setbase, setencoding, close, and parse return parser upon success", function()
+		it("setbase, setblamaxamplification, setblathreshold, setencoding, close, and parse return parser upon success", function()
 			assert.has.no.error(function()
-				lxp.new({}):setbase("/base"):setencoding("ISO-8859-1"):parse("<root/>"):parse():close():close()
+				lxp.new({}):setbase("/base"):
+							setblamaxamplification(55.55):
+							setblathreshold(1024*1024):
+							setencoding("ISO-8859-1"):
+							parse("<root/>"):
+							parse():
+							close():
+							close()
 			end)
 		end)
 
