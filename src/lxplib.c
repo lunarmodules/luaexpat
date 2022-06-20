@@ -813,6 +813,17 @@ static void set_info (lua_State *L) {
   lua_pushliteral (L, "_EXPAT_VERSION");
   lua_pushstring (L, XML_ExpatVersion());
   lua_settable (L, -3);
+  /* create feature list */
+  lua_pushliteral (L, "_EXPAT_FEATURES");
+  lua_newtable (L);
+
+  const XML_Feature *features;
+  for (features = XML_GetFeatureList (); features->name != NULL; features++) {
+    lua_pushstring (L, features->name);
+    lua_pushinteger (L, features->value);
+    lua_settable (L, -3);
+  }
+  lua_settable (L, -3);
 }
 
 int luaopen_lxp (lua_State *L) {
