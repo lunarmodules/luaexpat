@@ -1117,7 +1117,7 @@ describe("lxp:", function()
 			end
 			collectgarbage()
 			collectgarbage()
-			assert(math.abs(gcinfo() - x) <= 2)
+			assert.near(x, gcinfo(), 2)
 		end)
 
 
@@ -1149,7 +1149,7 @@ describe("lxp:", function()
 			end
 			collectgarbage()
 			collectgarbage()
-			assert(math.abs(gcinfo() - x) <= 2)
+			assert.near(x, gcinfo(), 2)
 		end)
 
 	end)
