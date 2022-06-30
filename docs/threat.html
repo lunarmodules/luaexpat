@@ -99,6 +99,8 @@ To protect against this make sure to set the maximum buffer size (option <em>buf
 <ul>
 	<li><strong>depth</strong> max depth of tags, child elements like Text or Comments are
 	not counted as another level. Default 50.</li>
+	<li><strong>allowDTD</strong> boolean indicating whether DTDs are allowed. Default
+	<code>true</code>.</li>
 	<li><strong>maxChildren</strong> max number of children (Element, Text, Comment,
 	ProcessingInstruction, CDATASection).<br/><em>NOTE</em>: adjacent text/CDATA
 	sections are counted as 1 (so text-cdata-text-cdata is 1 child). Default 100.</li>

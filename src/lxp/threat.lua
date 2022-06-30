@@ -16,6 +16,7 @@ local threat = {}
 
 local defaults = {
 	depth = 50,				-- depth of tags
+	allowDTD = true,		-- is a DTD allowed
 
 	-- counts
 	maxChildren = 100,		-- max number of children (DOM2;  Element, Text, Comment,
@@ -56,7 +57,9 @@ function threat.new(callbacks, separator, merge_character_data)
 
 	-- apply defaults
 	for setting, value in pairs(defaults) do
-		checks[setting] = checks[setting] or value
+		if checks[setting] == nil then
+			checks[setting] = value
+		end
 	end
 	if separator == nil then
 		checks.maxNamespaces = nil
@@ -274,6 +277,9 @@ function threat.new(callbacks, separator, merge_character_data)
 
 		elseif key == "StartDoctypeDecl" then  -- TODO: implement
 			ncb = function(parser, name, sysid, pubid, has_internal_subset)
+				if not checks.allowDTD then
+					return threat_error("DTD is not allowed")
+				end
 				return callbacks.StartDoctypeDecl(p, name, sysid, pubid, has_internal_subset)
 			end
 

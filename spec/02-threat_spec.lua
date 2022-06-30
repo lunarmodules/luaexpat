@@ -155,6 +155,53 @@ describe("threats", function()
 
 
 
+	describe("allowDTD:", function()
+
+		it("accepts if allowed", function()
+			local r, err = p:parse(d[[
+				<?xml version="1.0" standalone="yes"?>
+				<!DOCTYPE test_doc [
+					<!ELEMENT br EMPTY>
+				]>
+			]])
+
+			assert.equal(nil, err)
+			assert.truthy(r)
+			assert.same({
+				{ "XmlDecl", "1.0", nil, true },
+				{ "Default", "\n"},
+				{ "StartDoctypeDecl", "test_doc", nil, nil, true },
+				{ "Default", "\n\t"},
+				{ "ElementDecl", "br", "EMPTY" },
+				{ "Default", "\n"},
+				{ "EndDoctypeDecl" },
+				{ "Default", "\n\n"},
+			}, cbdata)
+		end)
+
+
+		it("blocks if not allowed", function()
+			local old_dtd = threat.allowDTD
+			finally(function()
+				threat.allowDTD = old_dtd
+			end)
+			threat.allowDTD = false
+
+			local r, err = p:parse(d[[
+				<?xml version="1.0" standalone="yes"?>
+				<!DOCTYPE test_doc [
+					<!ELEMENT br EMPTY>
+				]>
+			]])
+
+			assert.equal("DTD is not allowed", err)
+			assert.falsy(r)
+		end)
+
+	end)
+
+
+
 	describe("children:", function()
 
 		it("accepts on the edge (3)", function()
