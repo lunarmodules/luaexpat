@@ -80,6 +80,8 @@ describe("lxp:", function()
 			assert.is.string(lxp._DESCRIPTION)
 			assert.is.string(lxp._COPYRIGHT)
 			assert.is.string(lxp._EXPAT_VERSION)
+			assert.is.table(lxp._EXPAT_FEATURES)
+			assert.is.number(lxp._EXPAT_FEATURES.XML_CONTEXT_BYTES)
 		end)
 
 
@@ -96,9 +98,16 @@ describe("lxp:", function()
 		end)
 
 
-		it("setbase, setencoding, close, and parse return parser upon success", function()
+		it("setbase, setblamaxamplification, setblathreshold, setencoding, close, and parse return parser upon success", function()
 			assert.has.no.error(function()
-				lxp.new({}):setbase("/base"):setencoding("ISO-8859-1"):parse("<root/>"):parse():close():close()
+				lxp.new({}):setbase("/base"):
+							setblamaxamplification(55.55):
+							setblathreshold(1024*1024):
+							setencoding("ISO-8859-1"):
+							parse("<root/>"):
+							parse():
+							close():
+							close()
 			end)
 		end)
 

@@ -9,7 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "expat_config.h"
 #include "expat.h"
+#if (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION < 4) || (XML_MAJOR_VERSION < 2)
+#error Expat 2.4 or newer is required
+#endif
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -712,6 +716,7 @@ static int lxp_setreturnnstriplet (lua_State *L) {
   return 1;
 }
 
+
 static int lxp_setencoding (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   const char *encoding = luaL_checkstring(L, 2);
@@ -721,11 +726,40 @@ static int lxp_setencoding (lua_State *L) {
   return 1;
 }
 
+
 static int lxp_stop (lua_State *L) {
   lxp_userdata *xpu = checkparser(L, 1);
   lua_pushboolean(L, XML_StopParser(xpu->parser, XML_FALSE) == XML_STATUS_OK);
   return 1;
 }
+
+
+/* Billion Laughs Attack mitigation from Expat 2.4.0+ */
+#ifdef XML_DTD
+static int lxp_bla_maximum_amplification (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  if (! XML_SetBillionLaughsAttackProtectionMaximumAmplification(xpu->parser, luaL_checknumber(L, 2))) {
+    lua_pushnil(L);
+    lua_pushliteral(L, "failed to set BLA maximum amplification");
+    return 2;
+  }
+  lua_settop(L, 1);
+  return 1;
+}
+
+
+static int lxp_bla_activation_threshold (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  if (! XML_SetBillionLaughsAttackProtectionActivationThreshold(xpu->parser, luaL_checkinteger(L, 2))) {
+    lua_pushnil(L);
+    lua_pushliteral(L, "failed to set BLA activation threshold");
+    return 2;
+  }
+  lua_settop(L, 1);
+  return 1;
+}
+#endif
+
 
 #if !defined LUA_VERSION_NUM
 /* Lua 5.0 */
@@ -750,6 +784,10 @@ static const struct luaL_Reg lxp_meths[] = {
   {"setbase", setbase},
   {"returnnstriplet", lxp_setreturnnstriplet},
   {"stop", lxp_stop},
+#ifdef XML_DTD
+  {"setblamaxamplification", lxp_bla_maximum_amplification},
+  {"setblathreshold", lxp_bla_activation_threshold},
+#endif
   {NULL, NULL}
 };
 
@@ -774,6 +812,17 @@ static void set_info (lua_State *L) {
   lua_settable (L, -3);
   lua_pushliteral (L, "_EXPAT_VERSION");
   lua_pushstring (L, XML_ExpatVersion());
+  lua_settable (L, -3);
+  /* create feature list */
+  lua_pushliteral (L, "_EXPAT_FEATURES");
+  lua_newtable (L);
+
+  const XML_Feature *features;
+  for (features = XML_GetFeatureList (); features->name != NULL; features++) {
+    lua_pushstring (L, features->name);
+    lua_pushinteger (L, features->value);
+    lua_settable (L, -3);
+  }
   lua_settable (L, -3);
 }
 
