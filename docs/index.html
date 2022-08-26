@@ -72,7 +72,7 @@ as Lua 5.1.</p>
 <h2><a name="status"></a>Status</h2>
 
 <p>Current version is 1.4.1. It was developed for Lua 5.1 to Lua 5.4, and has been tested on
-Linux, Windows (XP) and MacOS X with Expat 2.1.0.</p>
+Linux and MacOS X with Expat 2.4.0+.</p>
 
 <h2><a name="download"></a>Download</h2>
 
@@ -92,7 +92,18 @@ for Windows</a> project.</p>
 	<dt><strong>Version 1.5.0</strong> [unreleased]</dt>
 	<dd>
 		<ul>
-			<li>Added option "allowDTD" to the threat protection parser</li>
+			<li><strong>warning:</strong> this update requires a minimum libExpat
+			version of 2.4.0. Though at the time of writing a minimum version of
+			2.4.6 is recommended <a href="https://www.cvedetails.com/vulnerability-list.php?vendor_id=16735">
+			due to CVE's fixed</a> in the intermediate versions.</li>
+			<li>Added option "allowDTD" to the threat protection parser. This includes adding
+			<code>#include "expat_config.h"</code>, since these functions are conditionally
+			included in the exposed API of Expat. This means that LuaExpat will now be compiled
+			using the same options used to compile Expat itself.</li>
+			<li>Add configuration for Billion Laughs Attack prevention</li>
+			<li>Expose Expat compile time constants (lxp._EXPAT_FEATURES), see
+			<a href="https://libexpat.github.io/doc/api/latest/#XML_GetFeatureList">
+			Expat documentation</a>.</li>
 		</ul>
 	</dd>
 

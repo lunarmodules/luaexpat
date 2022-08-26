@@ -205,6 +205,18 @@ lxp.new(cb):setencoding("UTF-8"):parse(doc):parse():close()
 	<dd>Sets the <em>base</em> to be used for resolving relative URIs in
 	system identifiers. Returns the parser object on success.</dd>
 
+	<dt><strong>parser:setblamaxamplification(max_amp)</strong></dt>
+	<dd>Sets the <em>maximum amplification</em> (float) to be allowed. This
+	protects against the Billion Laughs Attack. The
+	<em>libexpat</em> default is 100. Returns the parser object on success.<br/>
+	</dd>
+
+	<dt><strong>parser:setblathreshold(threshold)</strong></dt>
+	<dd>Sets the <em>threshold</em> (int, in bytes) after which the protection
+	starts. This protects against the Billion Laughs Attack. The
+	<em>libexpat</em> default is 8 MiB. Returns the parser object on success.<br/>
+	</dd>
+
 	<dt><strong>parser:setencoding(encoding)</strong></dt>
 	<dd>Set the encoding to be used by the parser. There are four
 	built-in encodings, passed as strings: "US-ASCII",

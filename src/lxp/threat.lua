@@ -122,6 +122,14 @@ function threat.new(callbacks, separator, merge_character_data)
 		local ok, err = parser:setbase(base)
 		return ok == parser and p or ok, err
 	end
+	function p:setblamaxamplification(amp)
+		local ok, err = parser:setblamaxamplification(amp)
+		return ok == parser and p or ok, err
+	end
+	function p:setblathreshold(threshold)
+		local ok, err = parser:setblathreshold(threshold)
+		return ok == parser and p or ok, err
+	end
 	function p:setencoding(encoding)
 		local ok, err = parser:setencoding(encoding)
 		return ok == parser and p or ok, err
