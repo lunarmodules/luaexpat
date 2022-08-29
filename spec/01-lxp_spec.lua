@@ -1105,6 +1105,38 @@ describe("lxp:", function()
 
 
 
+	describe("BLA protection", function()
+		local bla_body = [[<?xml version="1.0"?>
+			<!DOCTYPE lolz [
+				<!ENTITY lol "lol">
+				<!ELEMENT lolz (#PCDATA)>
+				<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+				<!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+				<!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+				<!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+				<!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+				<!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+				<!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+				<!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+				<!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+				<!ENTITY lola "&lol9;&lol9;&lol9;&lol9;&lol9;&lol9;&lol9;&lol9;&lol9;&lol9;">
+				<!ENTITY lolb "&lola;&lola;&lola;&lola;&lola;&lola;&lola;&lola;&lola;&lola;">
+			]>
+			<lolz>&lolb;</lolz>
+		]]
+
+		it("fails if amplification too big", function()
+			local p = test_parser { "StartElement", "EndElement", "CharacterData" }
+			local ok, err = p:parse(bla_body)
+			assert.is_nil(ok)
+			assert.equal("limit on input amplification factor (from DTD and entities) breached", err)
+		end)
+
+
+	end)
+
+
+
 	describe("garbage collection", function()
 
 		local gcinfo = function() return collectgarbage"count" end
