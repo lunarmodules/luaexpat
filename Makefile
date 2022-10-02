@@ -24,7 +24,7 @@ lib: src/$(LIBNAME)
 
 src/$(LIBNAME):
 	export MACOSX_DEPLOYMENT_TARGET="10.3";
-	$(CC) $(CF) -o $@ src/$(T)lib.c $(LF)
+	$(CC) $(CF) $(RPM_OPT_FLAGS) $(RPM_LD_FLAGS) -o $@ src/$(T)lib.c $(LF)
 
 install:
 	$(INSTALL_PROGRAM) -D src/$(LIBNAME) $(DESTDIR)$(LUA_CDIR)/$(LIBNAME)
