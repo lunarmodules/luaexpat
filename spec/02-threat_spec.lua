@@ -58,7 +58,7 @@ describe("threats", function()
 		StartDoctypeDecl = { "parser", "name", "sysid", "pubid", "has_internal_subset" },
 		StartElement = { "parser", "elementName", "attributes" },
 		StartNamespaceDecl = { "parser", "namespaceName", "namespaceUri" },
-		--UnparsedEntityDecl = { "parser", "entityName", "base", "systemId", "publicId", "notationName" },  -- superseeded by EntityDecl
+		--UnparsedEntityDecl = { "parser", "entityName", "base", "systemId", "publicId", "notationName" },  -- superseded by EntityDecl
 		XmlDecl = { "parser", "version", "encoding", "standalone" },
 	}
 
