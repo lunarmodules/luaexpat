@@ -90,7 +90,7 @@ describe("Lua object model:", function()
 					--doctype = [[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]], --> ignora as entidades
 					--doctype = [[<!DOCTYPE html SYSTEM "about:legacy-compat">]], --> ignora as entidades
 					--doctype = [[<!DOCTYPE html>]], --> undefined entity
-					--doctype = [[<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">]], --> sintax error
+					--doctype = [[<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">]], --> syntax error
 					--doctype = [[<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" SYSTEM "http://www.w3.org/TR/html4/strict.dtd">]], --> syntax error
 					--doctype = [[<!DOCTYPE HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1//EN//HTML">]], --> syntax error
 					--doctype = [[<!DOCTYPE HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent">]], --> ignora entidades

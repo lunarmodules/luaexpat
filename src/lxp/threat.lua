@@ -85,7 +85,7 @@ function threat.new(callbacks, separator, merge_character_data)
 			"StartDoctypeDecl",
 			"StartElement",
 			"StartNamespaceDecl",
-			--"UnparsedEntityDecl", -- superseeded by EntityDecl
+			--"UnparsedEntityDecl", -- superseded by EntityDecl
 			"EntityDecl",
 			"AttlistDecl",
 			"ElementDecl",
@@ -383,7 +383,7 @@ function threat.new(callbacks, separator, merge_character_data)
 				return callbacks.StartNamespaceDecl(p, namespaceName, namespaceUri)
 			end
 
-		-- elseif key == "UnparsedEntityDecl" then  -- TODO: implement?? superseeded by "EntityDecl"
+		-- elseif key == "UnparsedEntityDecl" then  -- TODO: implement?? superseded by "EntityDecl"
 		-- 	ncb = function(parser, entityName, base, systemId, publicId, notationName)
 		-- 		return callbacks.UnparsedEntityDecl(p, entityName, base, systemId, publicId, notationName)
 		-- 	end
