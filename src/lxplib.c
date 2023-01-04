@@ -9,7 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef LUAEXPAT_SKIP_EXPAT_CONFIG
+// By default use the standard libexpat header. Some package managers
+// do not include this header. In that case setting LUAEXPAT_SKIP_EXPAT_CONFIG
+// allows you to override the option.
+// 1. ensure you have libExpat 2.4+
+// 2. try building the library
+// 3. try building while defining LUAEXPAT_SKIP_DTD_SUPPORT and XML_DTD (include DTD support)
+// 4. try building while defining LUAEXPAT_SKIP_DTD_SUPPORT (disable DTD support)
 #include "expat_config.h"
+#endif
+
 #include "expat.h"
 #if (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION < 4) || (XML_MAJOR_VERSION < 2)
 #error Expat 2.4 or newer is required
