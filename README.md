@@ -1,8 +1,8 @@
 LuaExpat
 --------
 
-[![Unix build](https://img.shields.io/github/workflow/status/lunarmodules/luaexpat/Unix%20build?label=Unix%20build&logo=linux)](https://github.com/lunarmodules/luaexpat/actions/workflows/unix_build.yml)
-[![Luacheck](https://github.com/lunarmodules/luaexpat/workflows/Luacheck/badge.svg)](https://github.com/lunarmodules/luaexpat/actions/workflows/luacheck.yml)
+[![Unix build](https://img.shields.io/github/actions/workflow/status/lunarmodules/luaexpat/unix_build.yml?branch=master&label=Unix%20build&logo=linux)](https://github.com/lunarmodules/luaexpat/actions/workflows/unix_build.yml)
+[![Luacheck](https://github.com/lunarmodules/luaexpat/actions/workflows/luacheck.yml/badge.svg)](https://github.com/lunarmodules/luaexpat/actions/workflows/luacheck.yml)
 [![License](https://img.shields.io/badge/license-MIT-success)](https://lunarmodules.github.io/luaexpat/license.html)
 
 # Overview
