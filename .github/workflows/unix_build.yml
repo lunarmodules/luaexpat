@@ -6,13 +6,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      EXPAT_VERSION: 2.4.4
-
     strategy:
       fail-fast: false
       matrix:
         luaVersion: ["5.1", "5.2", "5.3", "5.4", "luajit-2.1.0-beta3", "luajit-openresty"]
+        expatVersion: ["2.4.4", "2.6.2"]
 
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +27,7 @@ jobs:
 
     - name: build expat
       run: |
-        git clone -b R_$(echo $EXPAT_VERSION | sed "s/\./_/g") --single-branch https://github.com/libexpat/libexpat.git
+        git clone -b R_$(echo ${{ matrix.expatVersion }} | sed "s/\./_/g") --single-branch https://github.com/libexpat/libexpat.git
         cd libexpat/expat
         ./buildconf.sh
         ./configure
