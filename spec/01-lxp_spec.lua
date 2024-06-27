@@ -464,6 +464,9 @@ describe("lxp:", function()
 						default namespace on y
 						<b>inherited namespace for b</b>
 					</y>
+					<z xmlns=''>
+						empty namespace
+					</z>
 				</root>
 			]]))
 			p:close()
@@ -486,6 +489,10 @@ describe("lxp:", function()
 				{ "EndElement", "b/namespace?b" },
 				{ "EndElement", "b/namespace?y" },
 				{ "EndNamespaceDecl", nil },
+				{ "StartNamespaceDecl", nil }, -- emptynamespace results in no namespace; nil
+				{ "StartElement", "z", {} },
+				{ "EndElement", "z" },
+				{ "EndNamespaceDecl", nil },
 				{ "EndElement", "root" },
 			}, cbdata)
 		end)
@@ -507,6 +514,9 @@ describe("lxp:", function()
 						default namespace on y
 						<b>inherited namespace for b</b>
 					</y>
+					<z xmlns=''>
+						empty namespace
+					</z>
 				</root>
 			]]))
 			p:close()
@@ -528,6 +538,10 @@ describe("lxp:", function()
 				{ "StartElement", "b/namespace?b", {} },
 				{ "EndElement", "b/namespace?b" },
 				{ "EndElement", "b/namespace?y" },
+				{ "EndNamespaceDecl", nil },
+				{ "StartNamespaceDecl", nil }, -- emptynamespace results in no namespace; nil
+				{ "StartElement", "z", {} },
+				{ "EndElement", "z" },
 				{ "EndNamespaceDecl", nil },
 				{ "EndElement", "root" },
 			}, cbdata)
