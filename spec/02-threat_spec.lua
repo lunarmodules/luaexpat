@@ -1228,6 +1228,21 @@ describe("threats", function()
 			assert.falsy(r)
 		end)
 
+
+		it("accepts empty URI", function()
+			local doc = [[<root xmlns="">txt</root>]]
+			local r, err = p:parse(doc)
+			assert.equal(nil, err)
+			assert.truthy(r)
+			assert.same({
+				{ "StartNamespaceDecl" },
+				{ "StartElement", "root", {} },
+				{ "CharacterData", "txt" },
+				{ "EndElement", "root" },
+				{ "EndNamespaceDecl" }
+			}, cbdata)
+		end)
+
 	end)
 
 

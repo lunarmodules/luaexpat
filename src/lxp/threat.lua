@@ -376,7 +376,7 @@ function threat.new(callbacks, separator, merge_character_data)
 					return threat_error("prefix too long")
 				end
 
-				if checks.namespaceUri and #namespaceUri > checks.namespaceUri then
+				if checks.namespaceUri and namespaceUri and #namespaceUri > checks.namespaceUri then
 					return threat_error("namespaceUri too long")
 				end
 
