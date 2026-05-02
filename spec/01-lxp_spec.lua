@@ -41,6 +41,7 @@ describe("lxp:", function()
 		assert(type(cbs) == "table", "expected arg #1 to be a table")
 		local t = {}
 		for k,v in pairs(cbs) do
+			local k = k
 			if type(k) == "number" then
 				assert(type(v) == "string", "array entries must have string values")
 				k = v
