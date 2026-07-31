@@ -9,9 +9,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: anishathalye/proof-html@de0745a75f536af1360d37849a8a732413fad66b # v1
+      - uses: anishathalye/proof-html@3cb0083534425b4902e6e77ac26ac3fe5b718f51 # v2.2.4
         with:
           directory: ./docs
           check_favicon: false
