@@ -13,13 +13,13 @@ jobs:
         expatVersion: ["2.4.4", "2.6.2"]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - uses: luarocks/gh-actions-lua@master
       with:
         luaVersion: ${{ matrix.luaVersion }}
 
-    - uses: luarocks/gh-actions-luarocks@v6
+    - uses: luarocks/gh-actions-luarocks@v7
       with:
         luaRocksVersion: "3.13.0"
 
