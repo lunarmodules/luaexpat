@@ -48,6 +48,7 @@ struct lxp_userdata {
   enum XPState state;
   luaL_Buffer *b;  /* to concatenate sequences of cdata pieces */
   int bufferCharData; /* whether to buffer cdata pieces */
+  int attributePosition; /* whether to include attribute position */
 };
 
 typedef struct lxp_userdata lxp_userdata;
@@ -201,7 +202,7 @@ static void f_DefaultExpand (void *ud, const char *data, int len) {
 static void f_StartElement (void *ud, const char *name, const char **attrs) {
   lxp_userdata *xpu = (lxp_userdata *)ud;
   lua_State *L = xpu->L;
-  int lastspec = XML_GetSpecifiedAttributeCount(xpu->parser) / 2;
+  int lastspec = xpu->attributePosition != 0 ? XML_GetSpecifiedAttributeCount(xpu->parser) / 2 : 0;
   int i = 1;
   if (getHandle(xpu, StartElementKey) == 0) return;  /* no handle */
   lua_pushstring(L, name);
@@ -546,9 +547,11 @@ static void checkcallbacks (lua_State *L) {
 
 static int lxp_make_parser (lua_State *L) {
   XML_Parser p;
+  int attributePosition = (lua_type(L, 4) != LUA_TBOOLEAN) || (lua_toboolean(L, 4) != 0);
   int bufferCharData = (lua_type(L, 3) != LUA_TBOOLEAN) || (lua_toboolean(L, 3) != 0);
   char sep = *luaL_optstring(L, 2, "");
   lxp_userdata *xpu = createlxp(L);
+  xpu->attributePosition = attributePosition;
   xpu->bufferCharData = bufferCharData;
   p = xpu->parser = (sep == '\0') ? XML_ParserCreate(NULL) :
                                     XML_ParserCreateNS(NULL, sep);

@@ -144,13 +144,16 @@ document will be closed and an error will be returned;</p>
 <h4>Constructor</h4>
 
 <dl class="reference">
-	<dt><strong>lxp.new(<em>callbacks [, separator[, merge_character_data]]</em>)</strong></dt>
+	<dt><strong>lxp.new(<em>callbacks [, separator[, merge_character_data[, attribute_position]]]</em>)</strong></dt>
 	<dd>The parser is created by a call to the function <strong>lxp.new</strong>,
 	which returns the created parser or raises a Lua error. It
 	receives the callbacks table and optionally the parser <a href="#separator">
 	separator character</a> used in the namespace expanded element names.
 	If <em>merge_character_data</em> is false then LuaExpat will not combine multiple
-	CharacterData calls into one. For more info on this behaviour see CharacterData below.</dd>
+	CharacterData calls into one. For more info on this behaviour see CharacterData below.
+	If <em>attribute_position</em> is false then LuaExpat will not include the
+	attribute position in the attributes table. For more info on this behaviour see
+	StartElement below.</dd>
 </dl>
 
 <h4>Methods</h4>
@@ -424,7 +427,8 @@ for more than one parser for example.</p>
 	every attribute in the element start tag and entries for the
 	default attributes for that element.<br/>
 	The attributes are listed by name (including the inherited ones)
-	and by position (inherited attributes are not considered in the
+	and, unless <em>attribute_position</em> is set to false when calling
+	<em>lxp.new()</em>, by position (inherited attributes are not considered in the
 	position list).<br/>
 	As an example if the <em>book</em> element has attributes
 	<em>author</em>, <em>title</em> and an optional <em>format</em>
@@ -434,8 +438,8 @@ for more than one parser for example.</p>
 </pre>
     would be represented as<br/>
 <pre class="example">
-{[1] = "Ierusalimschy, Roberto",
- [2] = "Programming in Lua",
+{[1] = "author",
+ [2] = "title",
  author = "Ierusalimschy, Roberto",
  format = "printed",
  title = "Programming in Lua"}
