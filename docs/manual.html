@@ -194,6 +194,18 @@ lxp.new(cb):setencoding("UTF-8"):parse(doc):parse():close()
 	contexts it will return 0. Do not use inside a CharacterData handler
 	unless CharacterData merging has been disabled (see <em>lxp.new</em>).</dd>
 
+	<dt><strong>parser:reset()</strong></dt>
+	<dd>Returns the parser to the state it was in when created, so it can
+	be reused for another document without allocating a new parser. Any
+	document in progress is discarded. The callbacks table,
+	<em>separator</em> and <em>merge_character_data</em> given to
+	<em>lxp.new</em> are kept, as is the <em>returnnstriplet</em>
+	setting; settings made through <em>setencoding</em>, <em>setbase</em>,
+	<em>setblamaxamplification</em> and <em>setblathreshold</em> return to
+	their defaults and must be applied again. It is an error to call this
+	from inside a callback, on a closed parser, or on the parser passed to
+	an ExternalEntityRef callback. Returns the parser object.</dd>
+
 	<dt><strong>parser:returnnstriplet(bool)</strong></dt>
 	<dd>Instructs the parser to return namespaces in triplet (<em>true</em>), or
 	only duo (<em>false</em>).
