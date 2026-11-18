@@ -1214,6 +1214,38 @@ describe("lxp:", function()
 		end)
 
 
+		it("is refused inside a buffered CharacterData callback", function()
+			local ok, err
+			local p = test_parser {
+				CharacterData = function(parser) ok, err = pcall(parser.reset, parser) end,
+			}
+			-- the text is still buffered when expat returns, and is delivered after
+			assert(p:parse("<a>text"))
+			assert.is_false(ok)
+			assert.matches("cannot reset parser while parsing", err, 1, true)
+		end)
+
+
+		it("recovers from a callback that is not a function", function()
+			local names = {}
+			local cbs = {
+				StartElement = function(parser, name) names[#names+1] = name end,
+			}
+			local p = lxp.new(cbs)
+			assert(p:parse("<a>"))
+			local good = cbs.StartElement
+			cbs.StartElement = "error"
+			assert.matches.error(function()
+				p:parse("<b/>")
+			end, "lxp 'StartElement' callback is not a function")
+			cbs.StartElement = good
+			p:reset()
+			assert(p:parse("<c/>"))
+			p:close()
+			assert.same({ "a", "c" }, names)
+		end)
+
+
 		it("is refused on a closed parser", function()
 			local p = test_parser {}
 			assert(p:parse("<a/>"))
