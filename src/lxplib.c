@@ -130,7 +130,12 @@ static int getHandle (lxp_userdata *xpu, const char *handle) {
     return 0;
   }
   if (!lua_isfunction(L, -1)) {
-    luaL_error(L, "lxp '%s' callback is not a function", handle);
+    /* raising here would jump out of XML_Parse; save it for parse_aux */
+    lua_pop(L, 1);
+    lua_pushfstring(L, "lxp '%s' callback is not a function", handle);
+    xpu->state = XPSerror;
+    xpu->errorref = luaL_ref(L, LUA_REGISTRYINDEX);
+    return 0;
   }
   lua_pushvalue(L, 1);  /* first argument in every call (self) */
   return 1;
