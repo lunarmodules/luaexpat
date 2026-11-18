@@ -1120,6 +1120,143 @@ describe("lxp:", function()
 
 
 
+	describe("reset()", function()
+
+		it("reuses a parser after a finished document", function()
+			local names = {}
+			local p = test_parser {
+				StartElement = function(parser, name) names[#names+1] = name end,
+			}
+			assert(p:parse("<a/>"))
+			assert(p:parse())
+			assert.equal(p, p:reset())
+			assert(p:parse("<b/>"))
+			assert(p:parse())
+			p:close()
+			assert.same({ "a", "b" }, names)
+		end)
+
+
+		it("discards an unfinished document", function()
+			local text = {}
+			local p = test_parser {
+				CharacterData = function(parser, s) text[#text+1] = s end,
+			}
+			assert(p:parse("<a><b>dropped"))
+			p:reset()
+			assert.same({ test_parser({}):pos() }, { p:pos() })
+			assert(p:parse("<c>kept</c>"))
+			p:close()
+			assert.same({ "dropped", "kept" }, text)
+		end)
+
+
+		it("recovers from a parse error", function()
+			local p = test_parser {}
+			assert.is_nil(p:parse("<a></b>"))
+			p:reset()
+			assert(p:parse("<a></a>"))
+			p:close()
+		end)
+
+
+		it("recovers from a callback error", function()
+			local fail = true
+			local p = test_parser {
+				StartElement = function() if fail then error("oops") end end,
+			}
+			assert.has.error(function() p:parse("<a/>") end)
+			fail = false
+			p:reset()
+			assert(p:parse("<a/>"))
+			p:close()
+		end)
+
+
+		it("keeps the namespace separator", function()
+			local names = {}
+			local p = test_parser({
+				StartElement = function(parser, name) names[#names+1] = name end,
+			}, "?")
+			assert(p:parse([[<a xmlns="urn:x"/>]]))
+			p:reset()
+			assert(p:parse([[<b xmlns="urn:y"/>]]))
+			p:close()
+			assert.same({ "urn:x?a", "urn:y?b" }, names)
+		end)
+
+
+		it("clears encoding and base, keeps namespace triplets", function()
+			local names = {}
+			local p = test_parser({
+				StartElement = function(parser, name) names[#names+1] = name end,
+			}, "?")
+			p:setbase("/base"):returnnstriplet(true):setencoding("US-ASCII")
+			assert(p:parse([[<p:a xmlns:p="urn:x"/>]]))
+			p:reset()
+			assert.is_nil(p:getbase())
+			assert(p:setencoding("UTF-8"))  -- allowed again before parsing
+			assert(p:parse([[<p:b xmlns:p="urn:x">é</p:b>]]))
+			p:close()
+			assert.same({ "urn:x?a?p", "urn:x?b?p" }, names)
+		end)
+
+
+		it("is refused inside a callback", function()
+			local ok, err
+			local p = test_parser {
+				StartElement = function(parser) ok, err = pcall(parser.reset, parser) end,
+			}
+			assert(p:parse("<a><b/></a>"))
+			p:close()
+			assert.is_false(ok)
+			assert.matches("cannot reset parser while parsing", err, 1, true)
+		end)
+
+
+		it("is refused inside a buffered CharacterData callback", function()
+			local ok, err
+			local p = test_parser {
+				CharacterData = function(parser) ok, err = pcall(parser.reset, parser) end,
+			}
+			-- the text is still buffered when expat returns, and is delivered after
+			assert(p:parse("<a>text"))
+			assert.is_false(ok)
+			assert.matches("cannot reset parser while parsing", err, 1, true)
+		end)
+
+
+		it("recovers from a callback that is not a function", function()
+			local names = {}
+			local cbs = {
+				StartElement = function(parser, name) names[#names+1] = name end,
+			}
+			local p = lxp.new(cbs)
+			assert(p:parse("<a>"))
+			local good = cbs.StartElement
+			cbs.StartElement = "error"
+			assert.matches.error(function()
+				p:parse("<b/>")
+			end, "lxp 'StartElement' callback is not a function")
+			cbs.StartElement = good
+			p:reset()
+			assert(p:parse("<c/>"))
+			p:close()
+			assert.same({ "a", "c" }, names)
+		end)
+
+
+		it("is refused on a closed parser", function()
+			local p = test_parser {}
+			assert(p:parse("<a/>"))
+			p:close()
+			assert.has.error(function() p:reset() end)
+		end)
+
+	end)
+
+
+
 	describe("BLA protection", function()
 		local bla_body = [[<?xml version="1.0"?>
 			<!DOCTYPE lolz [

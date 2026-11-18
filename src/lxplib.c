@@ -47,6 +47,7 @@ struct lxp_userdata {
   int errorref;  /* reference to error message if state is XPSerror */
   enum XPState state;
   luaL_Buffer *b;  /* to concatenate sequences of cdata pieces */
+  int parsing;  /* whether XML_Parse is running (i.e. we may be in a callback) */
   int bufferCharData; /* whether to buffer cdata pieces */
 };
 
@@ -71,6 +72,7 @@ static lxp_userdata *createlxp (lua_State *L) {
   xpu->parser = NULL;
   xpu->L = NULL;
   xpu->state = XPSpre;
+  xpu->parsing = 0;
   luaL_getmetatable(L, ParserType);
   lua_setmetatable(L, -2);
   return xpu;
@@ -128,7 +130,12 @@ static int getHandle (lxp_userdata *xpu, const char *handle) {
     return 0;
   }
   if (!lua_isfunction(L, -1)) {
-    luaL_error(L, "lxp '%s' callback is not a function", handle);
+    /* raising here would jump out of XML_Parse; save it for parse_aux */
+    lua_pop(L, 1);
+    lua_pushfstring(L, "lxp '%s' callback is not a function", handle);
+    xpu->state = XPSerror;
+    xpu->errorref = luaL_ref(L, LUA_REGISTRYINDEX);
+    return 0;
   }
   lua_pushvalue(L, 1);  /* first argument in every call (self) */
   return 1;
@@ -544,20 +551,11 @@ static void checkcallbacks (lua_State *L) {
 }
 
 
-static int lxp_make_parser (lua_State *L) {
-  XML_Parser p;
-  int bufferCharData = (lua_type(L, 3) != LUA_TBOOLEAN) || (lua_toboolean(L, 3) != 0);
-  char sep = *luaL_optstring(L, 2, "");
-  lxp_userdata *xpu = createlxp(L);
-  xpu->bufferCharData = bufferCharData;
-  p = xpu->parser = (sep == '\0') ? XML_ParserCreate(NULL) :
-                                    XML_ParserCreateNS(NULL, sep);
-  if (!p)
-    luaL_error(L, "XML_ParserCreate failed");
-  luaL_checktype(L, 1, LUA_TTABLE);
-  checkcallbacks(L);
-  lua_pushvalue(L, 1);
-  lua_setuservalue(L, -2);
+/*
+** Registers the expat handlers for the callbacks table at stack index 1
+*/
+static void sethandlers (lua_State *L, lxp_userdata *xpu) {
+  XML_Parser p = xpu->parser;
   XML_SetUserData(p, xpu);
   if (hasfield(L, StartCdataKey) || hasfield(L, EndCdataKey))
     XML_SetCdataSectionHandler(p, f_StartCdata, f_EndCdataKey);
@@ -597,6 +595,24 @@ static int lxp_make_parser (lua_State *L) {
     XML_SetXmlDeclHandler(p, f_XmlDecl);
   if (hasfield(L, ElementDeclKey))
     XML_SetElementDeclHandler(p, f_ElementDecl);
+}
+
+
+static int lxp_make_parser (lua_State *L) {
+  XML_Parser p;
+  int bufferCharData = (lua_type(L, 3) != LUA_TBOOLEAN) || (lua_toboolean(L, 3) != 0);
+  char sep = *luaL_optstring(L, 2, "");
+  lxp_userdata *xpu = createlxp(L);
+  xpu->bufferCharData = bufferCharData;
+  p = xpu->parser = (sep == '\0') ? XML_ParserCreate(NULL) :
+                                    XML_ParserCreateNS(NULL, sep);
+  if (!p)
+    luaL_error(L, "XML_ParserCreate failed");
+  luaL_checktype(L, 1, LUA_TTABLE);
+  checkcallbacks(L);
+  lua_pushvalue(L, 1);
+  lua_setuservalue(L, -2);
+  sethandlers(L, xpu);
   return 1;
 }
 
@@ -649,8 +665,10 @@ static int parse_aux (lua_State *L, lxp_userdata *xpu, const char *s,
   xpu->b = &b;
   lua_settop(L, 2);
   getcallbacks(L);
+  xpu->parsing = 1;
   status = XML_Parse(xpu->parser, s, (int)len, s == NULL);
   if (xpu->state == XPSstring) dischargestring(xpu);
+  xpu->parsing = 0;
   if (xpu->state == XPSerror) {  /* callback error? */
     lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->errorref);  /* get original msg. */
     lua_error(L);
@@ -694,6 +712,24 @@ static int lxp_close (lua_State *L) {
   if (status > 1) luaL_error(L, "error closing parser: %s",
                                 lua_tostring(L, -status+1));
   lua_settop(L, 1);
+  return 1;
+}
+
+
+static int lxp_reset (lua_State *L) {
+  lxp_userdata *xpu = checkparser(L, 1);
+  /* expat does not guard against this; it would free state still in use */
+  luaL_argcheck(L, !xpu->parsing, 1, "cannot reset parser while parsing");
+  if (XML_ParserReset(xpu->parser, NULL) != XML_TRUE)
+    luaL_error(L, "reset failed");
+  luaL_unref(L, LUA_REGISTRYINDEX, xpu->errorref);
+  xpu->errorref = LUA_REFNIL;
+  xpu->state = XPSpre;
+  /* expat cleared the user data and all handlers */
+  lua_settop(L, 1);
+  lua_getuservalue(L, 1);
+  lua_insert(L, 1);  /* callbacks table at index 1, parser on top */
+  sethandlers(L, xpu);
   return 1;
 }
 
@@ -784,6 +820,7 @@ static const struct luaL_Reg lxp_meths[] = {
   {"setbase", setbase},
   {"returnnstriplet", lxp_setreturnnstriplet},
   {"stop", lxp_stop},
+  {"reset", lxp_reset},
 #ifdef XML_DTD
   {"setblamaxamplification", lxp_bla_maximum_amplification},
   {"setblathreshold", lxp_bla_activation_threshold},
