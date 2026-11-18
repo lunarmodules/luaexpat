@@ -667,8 +667,8 @@ static int parse_aux (lua_State *L, lxp_userdata *xpu, const char *s,
   getcallbacks(L);
   xpu->parsing = 1;
   status = XML_Parse(xpu->parser, s, (int)len, s == NULL);
-  xpu->parsing = 0;
   if (xpu->state == XPSstring) dischargestring(xpu);
+  xpu->parsing = 0;
   if (xpu->state == XPSerror) {  /* callback error? */
     lua_rawgeti(L, LUA_REGISTRYINDEX, xpu->errorref);  /* get original msg. */
     lua_error(L);
